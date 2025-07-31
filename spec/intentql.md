@@ -2,6 +2,7 @@
 
 **Version:** 0.1  
 **Status:** Draft  
+**Author:** Lee Manley
 **Last Updated:** July 31, 2025
 
 ## Overview
