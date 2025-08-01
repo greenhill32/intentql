@@ -54,22 +54,82 @@
             padding: 0 2rem;
         }
 
-        .hero h1 {
+        /* Logo Styles */
+        .logo-container {
+            margin-bottom: 2rem;
+        }
+
+        .tagline {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: #888;
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .logo {
             font-size: clamp(3rem, 8vw, 6rem);
             font-weight: 700;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .brace-open,
+        .brace-close {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #feca57 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: clamp(3.5rem, 9vw, 6.5rem);
+            font-weight: 300;
+        }
+
+        .intent-text {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #feca57 100%);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: gradientShift 4s ease-in-out infinite;
-            margin-bottom: 1rem;
-            line-height: 1.1;
+            animation: gradientShift 6s ease-in-out infinite;
+        }
+
+        .ql-text {
+            background: linear-gradient(135deg, #45b7d1 0%, #96ceb4 25%, #feca57 50%, #ff6b6b 75%, #4ecdc4 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 6s ease-in-out infinite reverse;
         }
 
         @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            0%, 100% { 
+                background-position: 0% 50%; 
+            }
+            50% { 
+                background-position: 100% 50%; 
+            }
+        }
+
+        .subtitle-logo {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: #aaa;
+            font-weight: 400;
+            letter-spacing: 0.8px;
+            margin-bottom: 1rem;
+        }
+
+        /* Logo hover effects */
+        .logo-container:hover .intent-text,
+        .logo-container:hover .ql-text {
+            animation-duration: 2s;
+        }
+
+        .logo-container:hover .brace-open,
+        .logo-container:hover .brace-close {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
         }
 
         .hero .subtitle {
@@ -371,7 +431,14 @@
     
     <section class="hero">
         <div class="hero-content">
-            <h1>IntentQL</h1>
+            <div class="logo-container">
+                <div class="tagline">intent : discover site's capabilities</div>
+                <div class="logo">
+                    <span class="brace-open">{</span><span class="intent-text">Intent</span><span class="ql-text">QL</span><span class="brace-close">}</span>
+                </div>
+                <div class="subtitle-logo">AI agents welcome here</div>
+            </div>
+            
             <div class="subtitle">SQL for the Agentic Web</div>
             <p class="description">
                 An open standard for AI-first websites. Define how agents discover and interact with web capabilities using familiar SQL-like syntax. Stop scraping. Start standardizing.
