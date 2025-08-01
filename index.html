@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntentQL - SQL for the Agentic Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(-10px) rotate(-1deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            max-width: 1200px;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #a0a9c0;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .hero .description {
+            font-size: 1.2rem;
+            color: #8892b0;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .demo-section {
+            padding: 4rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .demo-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .demo-text p {
+            font-size: 1.1rem;
+            color: #a0a9c0;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d3a 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #e6e6e6;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .sql-keyword { color: #c792ea; }
+        .sql-string { color: #c3e88d; }
+        .sql-number { color: #f78c6c; }
+        .sql-comment { color: #546e7a; }
+
+        .features-section {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .feature-card p {
+            color: #a0a9c0;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            padding: 6rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .email-signup {
+            display: flex;
+            max-width: 400px;
+            margin: 0 auto;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .email-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 1rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .email-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-elements::before,
+        .floating-elements::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            animation: floatAround 20s linear infinite;
+        }
+
+        .floating-elements::before {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-elements::after {
+            top: 60%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        @keyframes floatAround {
+            0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            25% { transform: translateY(-50px) translateX(50px) rotate(90deg); }
+            50% { transform: translateY(0px) translateX(100px) rotate(180deg); }
+            75% { transform: translateY(50px) translateX(50px) rotate(270deg); }
+            100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .email-signup {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .email-input {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements"></div>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1>IntentQL</h1>
+            <div class="subtitle">SQL for the Agentic Web</div>
+            <p class="description">
+                An open standard for AI-first websites. Define how agents discover and interact with web capabilities using familiar SQL-like syntax. Stop scraping. Start standardizing.
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/greenhill32/intentql" class="btn btn-primary" target="_blank" rel="noopener">Join the Standard ⚡</a>
+                <a href="#features" class="btn btn-secondary">Shape the Spec</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="demo-grid">
+                <div class="demo-text">
+                    <h2>The Vision</h2>
+                    <p>The web needs to evolve beyond HTML scraping. Websites should natively expose their capabilities to AI agents through standardized interfaces.</p>
+                    <p><strong>IntentQL defines how this future works.</strong></p>
+                </div>
+                <div class="code-block">
+                    <pre><code><span class="sql-comment">// Current state: Brittle HTML scraping</span>
+<span class="sql-keyword">const</span> searchButton = <span class="sql-keyword">await</span> page.<span class="sql-keyword">waitForSelector</span>(<span class="sql-string">'#search-btn-maybe-this-class'</span>);
+<span class="sql-keyword">await</span> searchButton.<span class="sql-keyword">click</span>();
+<span class="sql-comment">// Breaks when site updates 💥</span></code></pre>
+                </div>
+            </div>
+
+            <div class="demo-grid">
+                <div class="code-block">
+                    <pre><code><span class="sql-comment">-- The IntentQL way: Clean, declarative, future-proof</span>
+<span class="sql-keyword">SELECT</span> name, price, rating 
+<span class="sql-keyword">FROM</span> amazon.products 
+<span class="sql-keyword">WHERE</span> category = <span class="sql-string">'laptops'</span> 
+  <span class="sql-keyword">AND</span> price < <span class="sql-number">1000</span> 
+<span class="sql-keyword">ORDER BY</span> rating <span class="sql-keyword">DESC</span>;</code></pre>
+                </div>
+                <div class="demo-text">
+                    <h2>The Solution</h2>
+                    <p>IntentQL lets agents query websites like databases. Sites expose capabilities through agent.json files, agents express intent in SQL-like syntax.</p>
+                    <p><strong>Familiar syntax. Powerful results.</strong></p>
+                </div>
+            </div>
+
+            <div class="demo-grid">
+                <div class="demo-text">
+                    <h2>Natural Language Bridge</h2>
+                    <p>Users speak in plain English. AI translates to IntentQL. Websites respond with structured data.</p>
+                    <p><strong>The future of human-AI-web interaction.</strong></p>
+                </div>
+                <div class="code-block">
+                    <pre><code><span class="sql-comment">Human:</span> <span class="sql-string">"Find me cheap Python books on Amazon"</span>
+
+<span class="sql-comment">AI Agent:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> amazon.products 
+<span class="sql-keyword">WHERE</span> category = <span class="sql-string">'books'</span> 
+  <span class="sql-keyword">AND</span> subject = <span class="sql-string">'Python'</span> 
+  <span class="sql-keyword">AND</span> price < <span class="sql-number">30</span>;</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features-section">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2 style="font-size: 3rem; margin-bottom: 1rem;">Why IntentQL Will Define the Future</h2>
+                <p style="font-size: 1.2rem; color: #a0a9c0; max-width: 600px; margin: 0 auto;">
+                    The infrastructure layer for the agentic web. Get ahead of the curve.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🔮</span>
+                    <h3>The Standard That's Coming</h3>
+                    <p>Define the protocol that will power the agentic web. Early implementers will have competitive advantage when AI agents go mainstream.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🧠</span>
+                    <h3>AI-Native</h3>
+                    <p>Natural language queries automatically convert to IntentQL. Perfect bridge between human intent and machine execution.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <h3>SQL Familiar</h3>
+                    <p>Leverages the world's most popular query language. Zero learning curve for millions of developers.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔗</span>
+                    <h3>Cross-Platform</h3>
+                    <p>Query multiple websites in a single statement. Break down data silos with unified syntax.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🛡️</span>
+                    <h3>Permission-Based</h3>
+                    <p>Sites control what agents can access. No more cat-and-mouse games with scraping detection.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🏗️</span>
+                    <h3>Infrastructure-Level</h3>
+                    <p>This isn't another scraping workaround. It's the foundational layer for how AI agents will interact with the web for the next decade.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>The Agentic Web is Coming</h2>
+            <p>
+                Be part of defining how AI agents interact with websites. Shape the standard that will power the next decade of web-AI interaction.
+            </p>
+            <div class="email-signup">
+                <input type="email" class="email-input" placeholder="Enter your email">
+                <button class="btn btn-primary">Get Early Access</button>
+            </div>
+            <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+                Looking for visionary developers, design partners, and early implementers
+            </p>
+        </div>
+    </section>
+
+    <script>
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Email signup functionality
+            const emailInput = document.querySelector('.email-input');
+            const signupButton = document.querySelector('.email-signup .btn-primary');
+            
+            signupButton.addEventListener('click', async function() {
+                const email = emailInput.value.trim();
+                if (!email || !email.includes('@')) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+                
+                // Google Apps Script URL for email capture
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbzhcfw7bXVpFGkNiyyyZkEG-ELaawLJf2YoF1gsNTUR0boni4GU_62eYV4VEhAF_rVVLg/exec';
+                
+                try {
+                    signupButton.textContent = 'Joining...';
+                    signupButton.disabled = true;
+                    
+                    const response = await fetch(scriptUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `email=${encodeURIComponent(email)}&userAgent=${encodeURIComponent(navigator.userAgent)}`
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('🚀 Welcome to the future! You\'ll be among the first to know when IntentQL launches.');
+                        emailInput.value = '';
+                    } else {
+                        alert('Something went wrong. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Something went wrong. Please try again.');
+                } finally {
+                    signupButton.textContent = 'Get Early Access';
+                    signupButton.disabled = false;
+                }
+            });
+
+            // Add typing effect to code blocks
+            const codeBlocks = document.querySelectorAll('.code-block pre code');
+            codeBlocks.forEach((block, index) => {
+                const text = block.innerHTML;
+                block.innerHTML = '';
+                let i = 0;
+                
+                setTimeout(() => {
+                    const typeInterval = setInterval(() => {
+                        if (i < text.length) {
+                            block.innerHTML += text.charAt(i);
+                            i++;
+                        } else {
+                            clearInterval(typeInterval);
+                        }
+                    }, 20);
+                }, index * 2000);
+            });
+
+            // Parallax effect for floating elements
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const parallax = document.querySelector('.floating-elements');
+                if (parallax) {
+                    const speed = scrolled * 0.5;
+                    parallax.style.transform = `translateY(${speed}px)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
