@@ -1,40 +1,43 @@
 # IntentQL
-**Making Websites Agent-Ready**  
-*The protocol for AI-first web interaction*
+
+## Making Websites Agent-Ready
+
+**The open protocol for AI-first web interaction.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/Version-0.2.0-blue.svg)](https://github.com/greenhill32/intentql/releases)
 [![Status](https://img.shields.io/badge/Status-Active-green.svg)](https://github.com/greenhill32/intentql)
 
-## The Problem
 
-AI agents are everywhere, but the web isn't ready for them.
 
-Today's agents scrape HTML, guess at button meanings, and break every time you update your CSS. Your servers get hammered by inefficient crawlers trying to extract simple data like product prices or availability.
 
-**There has to be a better way.**
+## 🚨 The Problem
 
-## The Solution
+AI agents are everywhere — but the web isn't built for them.
 
-IntentQL is the missing link between AI agents and websites.
+Today’s agents scrape HTML, guess at button meanings, and break every time you update your CSS. Meanwhile, your servers get hammered by inefficient crawlers just to extract simple data like product prices or content availability.
 
-Instead of agents scraping your HTML, they send clean requests for exactly what they need. Instead of building complex query infrastructure, you expose the APIs you already have.
+There has to be a better way.
 
-**Your elevator pitch:** "Your website breaks every AI agent. We fix that in 5 minutes."
+---
 
-## Evolution: From Vision to Reality
+## 💡 The Solution
 
-**Original Vision (Early 2025):** 
-SQL-like queries for agent-web interaction - a completely new protocol for the agentic web.
+**IntentQL** is the missing link between AI agents and websites.
 
-**Breakthrough (August 2025):**
-Most websites already expose the data agents need through existing APIs. We don't need to reinvent infrastructure - we just need to make it discoverable.
+Instead of scraping HTML, agents can send clean, structured requests for exactly what they need. Instead of building new infrastructure, websites expose the APIs they already use.
 
-## How It Works
+**Elevator pitch:** *"Your website breaks every AI agent. We fix that in 5 minutes."*
+
+---
+
+## 🛠 How It Works
 
 ### 1. Websites Publish Intent Maps
+
+A simple `agent.json` file describes what your site allows agents to do:
+
 ```json
-// agent.json - your AI cheat sheet
 {
   "intents": {
     "product_search": "/api/products?category={category}&max_price={price}",
@@ -45,13 +48,13 @@ Most websites already expose the data agents need through existing APIs. We don'
 ```
 
 ### 2. Agents Send Natural Language
-```
-User: "Show me red shoes under £100"
-Agent: Understands intent → product_search
-Maps to: /api/products?category=shoes&color=red&max_price=100
-```
 
-### 3. Clean, Structured Responses
+User: *"Show me red shoes under £100"*
+Agent understands intent → `product_search`
+Mapped to: `/api/products?category=shoes&color=red&max_price=100`
+
+### 3. Sites Respond with Structured Data
+
 ```json
 {
   "products": [
@@ -61,36 +64,50 @@ Maps to: /api/products?category=shoes&color=red&max_price=100
 }
 ```
 
-## Why This Changes Everything
+---
 
-**For Website Owners:**
-- ✅ 5-minute setup using APIs you already have
-- ✅ Reduce scraping load by 90%
-- ✅ Turn AI traffic into revenue instead of costs
-- ✅ Control exactly what agents can access
+## 🚀 Why This Changes Everything
 
-**For AI Developers:**
-- ✅ Reliable data instead of fragile scraping
-- ✅ Structured responses, not HTML parsing
-- ✅ No more breaking when sites update
-- ✅ Cross-site queries become possible
+### For Website Owners:
 
-**For Users:**
-- ✅ AI agents that actually work
-- ✅ Faster, more accurate responses
-- ✅ Better shopping, booking, research experiences
+* ✅ 5-minute setup using APIs you already have
+* ✅ Reduce scraping load dramatically
+* ✅ Turn AI traffic into revenue instead of costs
+* ✅ Control exactly what agents can access
 
-## Implementation Phases
+### For AI Developers:
 
-**Phase 1: API Discovery (Current Focus)**
-Map natural language intents to existing API endpoints. Quick wins, immediate adoption.
+* ✅ Reliable data instead of fragile scraping
+* ✅ Structured responses, not HTML parsing
+* ✅ No breakage when sites update
+* ✅ Enables cross-site queries as adoption grows
 
-**Phase 2: Advanced Querying (Original Vision)**
-Full SQL-like syntax for complex cross-site queries and advanced agent interactions.
+### For Users:
 
-## Quick Start
+* ✅ Agents that actually work
+* ✅ Faster, more accurate results
+* ✅ Better shopping, booking, research experiences
 
-### For E-commerce Sites
+---
+
+## 📈 Evolution: From Vision to Reality
+
+**Original Vision (Early 2025):** A new declarative query language — SQL for the agentic web.
+**Breakthrough (August 2025):** Most sites already expose the needed data — we just need to make it discoverable.
+
+---
+
+## 🔄 Implementation Phases
+
+* **Phase 1 (Now):** Intent mapping to existing APIs — fast, practical, deployable.
+* **Phase 2 (Next):** Advanced SQL-like querying across multiple sites and data domains.
+
+---
+
+## ⚡ Quick Start Examples
+
+### E-commerce
+
 ```json
 {
   "intents": {
@@ -101,7 +118,8 @@ Full SQL-like syntax for complex cross-site queries and advanced agent interacti
 }
 ```
 
-### For Content Sites
+### Content Sites
+
 ```json
 {
   "intents": {
@@ -112,57 +130,45 @@ Full SQL-like syntax for complex cross-site queries and advanced agent interacti
 }
 ```
 
-## Current Status
+---
 
-🚀 **Active Development** - Real implementations happening now
+## 📌 Current Status
 
-**Completed:**
-- [x] Core concept and specification
-- [x] API-first implementation strategy
-- [x] Community building and feedback
-- [x] Early adopter outreach
+**Active Development**
 
-**In Progress:**
-- [ ] Reference implementations for major platforms
-- [ ] WordPress plugin for easy adoption
-- [ ] Shopify app for e-commerce sites
-- [ ] Developer tools and documentation
+### ✅ Completed:
 
-**Coming Soon:**
-- [ ] Interactive playground and demos
-- [ ] Integration with major AI platforms
-- [ ] Enterprise tooling and analytics
+* Core spec and implementation concept
+* API-first integration model
+* Initial community and outreach
 
-## Get Involved
+### 🔄 In Progress:
 
-**I'm looking for:**
-- Technical co-founders excited about this vision
-- Early adopter websites willing to implement
-- AI developers wanting reliable web data
-- Contributors to help build the ecosystem
+* Reference implementations (Next.js, Flask, etc.)
+* WordPress plugin
+* Shopify app
+* Developer tools and docs
 
-**This isn't just a project - it's the infrastructure layer for the agentic web.**
+### 🔜 Coming Soon:
 
-## Real Talk
-
-I had this idea because I saw the future: billions of AI agents trying to interact with websites built for humans. The current approach (scraping) doesn't scale.
-
-The breakthrough was realizing we don't need to rebuild the web - we just need to make existing APIs discoverable to agents.
-
-If you're building AI agents, you need this.
-If you're running websites, you need this.
-If you see the agentic web coming, you need this.
-
-## Contact & Community
-
-- **Creator:** Lee Manley
-- **Email:** [your-email]
-- **Website:** https://intentql.dev
-- **GitHub:** https://github.com/greenhill32/intentql
-- **Twitter:** [your-twitter] - Follow the journey
+* Interactive playground and testbed
+* Integrations with major AI platforms
+* Analytics and enterprise tooling
 
 ---
 
-**"We built HTML for humans. Now we're building IntentQL for agents."**
+## 🙌 Get Involved
 
-*Join us in making the web agent-ready.*
+We’re looking for:
+
+* Developers and early adopters
+* AI builders and agent developers
+* Contributors and spec collaborators
+
+📩 Contact: \[your-email]
+🌐 Website: [https://intentql.dev](https://intentql.dev)
+🐙 GitHub: [https://github.com/greenhill32/intentql](https://github.com/greenhill32/intentql)
+
+> *"We built HTML for humans. Now we’re building IntentQL for agents."*
+
+Join us in making the web agent-ready.
