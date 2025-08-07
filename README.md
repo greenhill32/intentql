@@ -165,7 +165,7 @@ We’re looking for:
 * AI builders and agent developers
 * Contributors and spec collaborators
 
-📩 Contact: \[your-email]
+📩 Contact: lee@intentql.dev
 🌐 Website: [https://intentql.dev](https://intentql.dev)
 🐙 GitHub: [https://github.com/greenhill32/intentql](https://github.com/greenhill32/intentql)
 
