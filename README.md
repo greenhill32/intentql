@@ -134,29 +134,25 @@ Mapped to: `/api/products?category=shoes&color=red&max_price=100`
 
 ## 📌 Current Status
 
-**Active Development**
+## 📌 Current Status
 
-### ✅ Completed:
+**Active Development — early stage**
 
-* Core spec and implementation concept
-* API-first integration model
-* Initial community and outreach
+### ✅ Completed
+- Initial protocol concept (`agent.json`, `IntentQL` format)
+- Draft specification published on GitHub
+- Public website live ([intentql.dev](https://intentql.dev))
 
-### 🔄 In Progress:
+### 🔄 Early Work
+- Reference examples (Next.js, Flask)
+- Outreach to developers and AI builders
+- Testing integration patterns with real APIs
 
-* Reference implementations (Next.js, Flask, etc.)
-* WordPress plugin
-* Shopify app
-* Developer tools and docs
-
-### 🔜 Coming Soon:
-
-* Interactive playground and testbed
-* Integrations with major AI platforms
-* Analytics and enterprise tooling
-
----
-
+### 🔜 Next Steps
+- WordPress plugin
+- Shopify app
+- Developer tools and docs
+- Interactive playground and testbed
 ## 🙌 Get Involved
 
 We’re looking for:
