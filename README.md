@@ -131,9 +131,6 @@ Mapped to: `/api/products?category=shoes&color=red&max_price=100`
 ```
 
 ---
-
-## 📌 Current Status
-
 ## 📌 Current Status
 
 **Active Development — early stage**
