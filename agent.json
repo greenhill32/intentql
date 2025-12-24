@@ -1,0 +1,48 @@
+{
+  "name": "IntentQL",
+  "description": "IntentQL is an experimental specification for publishing machine-readable intent contracts that allow AI agents to discover and interact with websites more reliably than HTML scraping.",
+  "version": "0.1.0",
+  "site": "https://intentql.dev",
+
+  "capabilities": {
+    "read": true,
+    "search": false,
+    "write": false,
+    "purchase": false,
+    "auth_required": false
+  },
+
+  "intents": [
+    {
+      "id": "getOverview",
+      "name": "Get site overview",
+      "description": "Retrieve a human-readable explanation of what IntentQL is and why it exists.",
+      "method": "GET",
+      "endpoint": "https://intentql.dev/",
+      "response": {
+        "type": "text/html"
+      }
+    },
+    {
+      "id": "getSpecification",
+      "name": "Get IntentQL specification",
+      "description": "Retrieve the current IntentQL specification or reference documentation.",
+      "method": "GET",
+      "endpoint": "https://intentql.dev/spec",
+      "response": {
+        "type": "text/html"
+      }
+    }
+  ],
+
+  "discovery": {
+    "primary": "/agent.json"
+  },
+
+  "notes": [
+    "This site currently supports read-only access.",
+    "All intents return human-readable HTML.",
+    "Structured APIs may be added in future versions.",
+    "If an intent is not declared here, it is not supported."
+  ]
+}
