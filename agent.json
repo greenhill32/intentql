@@ -1,48 +1,71 @@
 {
   "name": "IntentQL",
-  "description": "IntentQL is an experimental specification for publishing machine-readable intent contracts that allow AI agents to discover and interact with websites more reliably than HTML scraping.",
-  "version": "0.1.0",
+  "description": "IntentQL is an experimental specification for publishing machine-readable intent contracts that allow AI agents to discover supported capabilities and limits of a website without relying on HTML scraping.",
+  "version": "0.1.2",
   "site": "https://intentql.dev",
+  "status": "experimental",
+
+  "discovery": {
+    "primary": "/agent.json",
+    "alternate": "/.well-known/agent.json"
+  },
 
   "capabilities": {
     "read": true,
     "search": false,
     "write": false,
-    "purchase": false,
-    "auth_required": false
+    "commerce": false,
+    "authentication": false
   },
 
   "intents": [
     {
       "id": "getOverview",
       "name": "Get site overview",
-      "description": "Retrieve a human-readable explanation of what IntentQL is and why it exists.",
+      "description": "Retrieve a machine-readable summary describing what IntentQL is and what this site provides.",
       "method": "GET",
-      "endpoint": "https://intentql.dev/",
+      "endpoint": "https://intentql.dev/overview.json",
       "response": {
-        "type": "text/html"
+        "type": "application/json"
       }
     },
     {
-      "id": "getSpecification",
-      "name": "Get IntentQL specification",
-      "description": "Retrieve the current IntentQL specification or reference documentation.",
+      "id": "getAgentInfo",
+      "name": "Get agent information page",
+      "description": "Retrieve a human-readable page explaining how AI agents should interpret this site.",
       "method": "GET",
-      "endpoint": "https://intentql.dev/spec",
+      "endpoint": "https://intentql.dev/agent-info",
       "response": {
         "type": "text/html"
       }
     }
   ],
 
-  "discovery": {
-    "primary": "/agent.json"
+  "constraints": {
+    "no_backend_apis": true,
+    "no_search_endpoint": true,
+    "no_contact_endpoint": true,
+    "no_llms_txt": true,
+    "no_write_actions": true
   },
 
+  "agent_behavior": {
+    "assume_absence_is_authoritative": true,
+    "do_not_infer_undocumented_intents": true,
+    "do_not_guess_endpoints": true,
+    "fallback_to_html_only_if_no_contract": false
+  },
+
+  "rules": [
+    "If an intent is not explicitly declared in this file, it is not supported.",
+    "Agents must not assume the existence of APIs, search endpoints, or contact interfaces.",
+    "This site exposes read-only informational resources only.",
+    "All supported interactions are listed under intents."
+  ],
+
   "notes": [
-    "This site currently supports read-only access.",
-    "All intents return human-readable HTML.",
-    "Structured APIs may be added in future versions.",
-    "If an intent is not declared here, it is not supported."
+    "IntentQL contracts declare both capabilities and limits.",
+    "Absence of an intent is intentional and must be respected.",
+    "This contract is static and may change as the specification evolves."
   ]
 }
