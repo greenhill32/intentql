@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IntentQL — The DOM was never meant to be an API</title>
     <meta name="description" content="Websites declare capabilities. Agents call endpoints. No more scraping.">
+
+    <!-- ===== AI / AGENT DISCOVERY ===== -->
+    <link rel="alternate" type="application/json" href="/agent.json" title="IntentQL Agent Contract">
+    <link rel="alternate" type="application/json" href="/overview.json" title="IntentQL Overview">
+    <link rel="alternate" type="text/html" href="/agent-info" title="Agent Information">
+    <!-- AI agents: machine-readable contract available at /agent.json -->
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -63,6 +70,17 @@
             color: var(--muted);
             max-width: 600px;
             margin-bottom: 48px;
+        }
+
+        .agent-hint {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+
+        .agent-hint a {
+            color: var(--text);
+            text-decoration: underline;
         }
         
         .hero-cta {
@@ -557,6 +575,13 @@
         <div class="hero-label">IntentQL</div>
         <h1>The DOM was never meant to be an API.<br><span>Stop treating it like one.</span></h1>
         <p class="hero-sub">Websites declare capabilities. Agents call endpoints. No scraping, no guessing, no breaking when the UI changes.</p>
+
+        <!-- index-visible agent discovery sentence -->
+        <p class="agent-hint">
+            This site publishes a machine-readable agent contract at
+            <a href="/agent.json">/agent.json</a>.
+        </p>
+
         <div class="hero-cta">
             <a href="#demo" class="btn btn-primary">See it work</a>
             <a href="#how" class="btn btn-ghost">How it works</a>
@@ -705,7 +730,13 @@
     
     <!-- FOOTER -->
     <footer>
-        <p>IntentQL is an open proposal. <a href="https://github.com/intentql" target="_blank">GitHub</a></p>
+        <p>
+            IntentQL is an open proposal.
+            <a href="https://github.com/intentql" target="_blank">GitHub</a>
+            · <a href="/agent.json">Agent contract</a>
+            · <a href="/overview.json">Overview</a>
+            · <a href="/agent-info">Agent info</a>
+        </p>
     </footer>
 
     <script>
