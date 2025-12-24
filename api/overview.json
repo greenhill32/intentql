@@ -1,0 +1,5 @@
+{
+  "name": "IntentQL",
+  "summary": "IntentQL defines how websites can publish machine-readable intent contracts for AI agents.",
+  "status": "experimental"
+}
