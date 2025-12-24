@@ -1,0 +1,54 @@
+{
+  "name": "IntentQL",
+  "status": "experimental",
+  "version": "0.1.0",
+  "site": "https://intentql.dev",
+
+  "summary": "IntentQL is an experimental specification that defines how websites can publish machine-readable intent contracts, allowing AI agents to discover what actions are supported without relying on brittle HTML scraping.",
+
+  "problem_statement": "AI agents currently interact with websites by guessing intent from HTML structure, which is fragile, expensive, and unreliable. Websites have no standard way to declare supported actions or measure agent demand.",
+
+  "what_intentql_provides": [
+    "A convention for publishing intent contracts via /agent.json",
+    "Explicit declaration of supported actions (intents)",
+    "Clear boundaries for what is and is not supported",
+    "A measurable surface for agent discovery and interaction"
+  ],
+
+  "current_capabilities": {
+    "contract_discovery": true,
+    "read_only": true,
+    "write_actions": false,
+    "authentication": false,
+    "commerce": false
+  },
+
+  "design_principles": [
+    "Contracts over scraping",
+    "Explicit over inferred intent",
+    "Measurable interactions",
+    "Opt-in and non-invasive",
+    "Web-native and backend-agnostic"
+  ],
+
+  "how_agents_should_use_this_site": [
+    "Fetch /agent.json to discover supported intents",
+    "Use declared endpoints only",
+    "Assume no capabilities beyond those explicitly listed",
+    "Fallback to HTML only if no contract is available"
+  ],
+
+  "non_goals": [
+    "Replacing existing APIs",
+    "Autonomous execution without consent",
+    "Bypassing authentication or paywalls",
+    "Tracking users or agents across sites"
+  ],
+
+  "related_resources": {
+    "agent_contract": "/agent.json",
+    "agent_info_page": "/agent-info"
+  },
+
+  "notes": "IntentQL is an early-stage experiment. The specification, conventions, and endpoints may change as real-world agent usage is observed."
+}
