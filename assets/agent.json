@@ -1,0 +1,94 @@
+{
+  "name": "IntentQL Demo Store",
+  "version": "0.1.0",
+  "description": "Shopify store demonstrating agent contract discovery and product search",
+  "status": "experimental",
+  "site": "https://intentql-demo-greenhill.myshopify.com",
+  
+  "constraints": {
+    "no_backend_apis_beyond_declared": true,
+    "no_customer_data": true,
+    "read_only": true,
+    "storefront_api_only": true
+  },
+
+  "intents": [
+    {
+      "id": "search_products",
+      "name": "Search Products",
+      "description": "Find products by title, handle, or keywords",
+      "method": "POST",
+      "endpoint": "https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json",
+      "auth": {
+        "type": "header",
+        "key": "X-Shopify-Storefront-Access-Token",
+        "value": "04739b9bd7254b9a6260d251ab16644e"
+      },
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Search keyword or product title",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Number of results (1-10)",
+          "default": 5
+        }
+      },
+      "example_query": "{ products(first: 5, query: \"blue\") { edges { node { id title handle description priceRange { minVariantPrice { amount } } } } } }"
+    },
+    {
+      "id": "get_product_details",
+      "name": "Get Product Details",
+      "description": "Fetch full details for a specific product by handle",
+      "method": "POST",
+      "endpoint": "https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json",
+      "auth": {
+        "type": "header",
+        "key": "X-Shopify-Storefront-Access-Token",
+        "value": "04739b9bd7254b9a6260d251ab16644e"
+      },
+      "parameters": {
+        "handle": {
+          "type": "string",
+          "description": "Product handle (e.g., 'blue-cotton-shirt')",
+          "required": true
+        }
+      },
+      "example_query": "{ product(handle: \"blue-cotton-shirt\") { id title description handle variants(first: 5) { edges { node { id title price } } } priceRange { minVariantPrice { amount } maxVariantPrice { amount } } } }"
+    },
+    {
+      "id": "get_collections",
+      "name": "Get Collections",
+      "description": "List available product collections",
+      "method": "POST",
+      "endpoint": "https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json",
+      "auth": {
+        "type": "header",
+        "key": "X-Shopify-Storefront-Access-Token",
+        "value": "04739b9bd7254b9a6260d251ab16644e"
+      },
+      "example_query": "{ collections(first: 10) { edges { node { id title handle description } } } }"
+    }
+  ],
+
+  "rules": [
+    "If an intent is not explicitly listed above, it is not supported",
+    "Do not assume pagination exists beyond 'first: N'",
+    "Do not assume filtering beyond search query exists",
+    "Do not invent endpoints",
+    "Read-only operations only—no cart, checkout, or customer mutations",
+    "This Storefront API token is public and read-only by design",
+    "Do not attempt to access admin endpoints",
+    "Respect rate limiting (Shopify may throttle)",
+    "When UI changes, this contract remains valid"
+  ],
+
+  "metadata": {
+    "created": "2025-12-24",
+    "theme": "Dawn",
+    "storefront_api_version": "2024-01",
+    "store_password": "awckau"
+  }
+}
