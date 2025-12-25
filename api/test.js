@@ -1,13 +1,11 @@
 module.exports = async function handler(req, res) {
-  // Only allow POST
+  // Accept both GET and POST
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
-}
+  }
 
-// Accept query from either POST body or GET params
-const query = req.method === 'POST' ? req.body.query : req.query.query;
-
-  const { query } = req.body;
+  // Get query from POST body or GET params
+  const query = req.method === 'POST' ? req.body.query : req.query.query;
 
   if (!query) {
     return res.status(400).json({ error: 'Missing GraphQL query' });
