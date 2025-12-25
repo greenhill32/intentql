@@ -1,94 +1,66 @@
 {
   "name": "IntentQL Demo Store",
   "version": "0.1.0",
-  "description": "Shopify store demonstrating agent contract discovery and product search",
+  "description": "Shopify store demonstrating agent contract discovery via IntentQL",
   "status": "experimental",
   "site": "https://intentql-demo-greenhill.myshopify.com",
-  
+  "protocol": "intentql",
+  "updated": "2025-12-25",
+
   "constraints": {
-    "no_backend_apis_beyond_declared": true,
-    "no_customer_data": true,
     "read_only": true,
-    "storefront_api_only": true
+    "no_customer_data": true,
+    "no_checkout": true,
+    "no_cart_mutations": true,
+    "no_authentication_required": true
+  },
+
+  "gateway": {
+    "base_url": "https://intentql.dev/api/test.js",
+    "method": "GET",
+    "note": "All intents execute through this gateway. Shopify API is not called directly."
   },
 
   "intents": [
     {
+      "id": "list_products",
+      "name": "List Products",
+      "description": "Fetch all available products from the catalog",
+      "endpoint": "https://intentql.dev/api/test.js",
+      "method": "GET",
+      "parameters": null,
+      "example": "GET https://intentql.dev/api/test.js",
+      "returns": "JSON with product array including id, title, handle, price"
+    },
+    {
       "id": "search_products",
       "name": "Search Products",
-      "description": "Find products by title, handle, or keywords",
-      "method": "POST",
-      "endpoint": "https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json",
-      "auth": {
-        "type": "header",
-        "key": "X-Shopify-Storefront-Access-Token",
-        "value": "04739b9bd7254b9a6260d251ab16644e"
-      },
+      "description": "Search products by keyword (coming soon)",
+      "endpoint": "https://intentql.dev/api/test.js",
+      "method": "GET",
       "parameters": {
         "query": {
           "type": "string",
-          "description": "Search keyword or product title",
-          "required": true
-        },
-        "limit": {
-          "type": "integer",
-          "description": "Number of results (1-10)",
-          "default": 5
+          "description": "Search term to filter products",
+          "required": false
         }
       },
-      "example_query": "{ products(first: 5, query: \"blue\") { edges { node { id title handle description priceRange { minVariantPrice { amount } } } } } }"
-    },
-    {
-      "id": "get_product_details",
-      "name": "Get Product Details",
-      "description": "Fetch full details for a specific product by handle",
-      "method": "POST",
-      "endpoint": "https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json",
-      "auth": {
-        "type": "header",
-        "key": "X-Shopify-Storefront-Access-Token",
-        "value": "04739b9bd7254b9a6260d251ab16644e"
-      },
-      "parameters": {
-        "handle": {
-          "type": "string",
-          "description": "Product handle (e.g., 'blue-cotton-shirt')",
-          "required": true
-        }
-      },
-      "example_query": "{ product(handle: \"blue-cotton-shirt\") { id title description handle variants(first: 5) { edges { node { id title price } } } priceRange { minVariantPrice { amount } maxVariantPrice { amount } } } }"
-    },
-    {
-      "id": "get_collections",
-      "name": "Get Collections",
-      "description": "List available product collections",
-      "method": "POST",
-      "endpoint": "https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json",
-      "auth": {
-        "type": "header",
-        "key": "X-Shopify-Storefront-Access-Token",
-        "value": "04739b9bd7254b9a6260d251ab16644e"
-      },
-      "example_query": "{ collections(first: 10) { edges { node { id title handle description } } } }"
+      "status": "planned"
     }
   ],
 
   "rules": [
-    "If an intent is not explicitly listed above, it is not supported",
-    "Do not assume pagination exists beyond 'first: N'",
-    "Do not assume filtering beyond search query exists",
-    "Do not invent endpoints",
-    "Read-only operations only—no cart, checkout, or customer mutations",
-    "This Storefront API token is public and read-only by design",
-    "Do not attempt to access admin endpoints",
-    "Respect rate limiting (Shopify may throttle)",
-    "When UI changes, this contract remains valid"
+    "Only intents explicitly listed above are supported",
+    "Do not attempt to access Shopify APIs directly",
+    "Do not assume cart, checkout, or purchase capabilities exist",
+    "Do not attempt to access customer or order data",
+    "Do not invent endpoints not declared in this contract",
+    "All operations are read-only",
+    "If an intent is marked 'planned', it is not yet functional"
   ],
 
-  "metadata": {
-    "created": "2025-12-24",
-    "theme": "Dawn",
-    "storefront_api_version": "2024-01",
-    "store_password": "awckau"
+  "contact": {
+    "maintainer": "IntentQL",
+    "documentation": "https://intentql.dev"
   }
 }
