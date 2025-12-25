@@ -24,7 +24,7 @@ module.exports = async function handler(req, res) {
 
   if (!query) {
   query = `{
-    products(first: 10, sortKey: CREATED_AT, reverse: true) {
+    products(first: 30, sortKey: CREATED_AT, reverse: true) {
       edges {
         node {
           id
