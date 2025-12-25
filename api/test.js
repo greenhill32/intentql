@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Try to get query from various sources
+  // Tryss to get query from various sources
   let query;
 
   if (req.body && typeof req.body === 'object' && req.body.query) {
