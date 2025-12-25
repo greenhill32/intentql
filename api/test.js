@@ -29,38 +29,3 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-```
-
-Click **Save** (Vercel auto-deploys).
-
-Wait 10 seconds for green checkmark.
-
----
-
-### Step 2: Test with Claude (2 minutes)
-
-Create a **new Claude conversation** (important: new chat, not this one).
-
-Paste this prompt exactly:
-```
-You are an AI agent testing a GraphQL gateway to Shopify.
-
-Endpoint: https://intentql-dev-git-main-yourname.vercel.app/api/test
-
-Send a POST request with this GraphQL query:
-{
-  products(first: 3) {
-    edges {
-      node {
-        id
-        title
-        handle
-      }
-    }
-  }
-}
-
-Report:
-1. Did the request succeed?
-2. What products came back?
-3. Any errors?
