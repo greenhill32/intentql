@@ -22,26 +22,25 @@ module.exports = async function handler(req, res) {
     } catch (e) {}
   }
 
-  // DEFAULT TEST QUERY - if no query provided, use this
   if (!query) {
-    query = `{
-      products(first: 5) {
-        edges {
-          node {
-            id
-            title
-            handle
-            priceRange {
-              minVariantPrice {
-                amount
-                currencyCode
-              }
+  query = `{
+    products(first: 10, sortKey: CREATED_AT, reverse: true) {
+      edges {
+        node {
+          id
+          title
+          handle
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
             }
           }
         }
       }
-    }`;
-  }
+    }
+  }`;
+}
 
   try {
     const shopifyUrl = 'https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json';
