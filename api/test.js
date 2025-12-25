@@ -1,8 +1,11 @@
 module.exports = async function handler(req, res) {
   // Only allow POST
-  if (req.method !== 'POST') {
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
+}
+
+// Accept query from either POST body or GET params
+const query = req.method === 'POST' ? req.body.query : req.query.query;
 
   const { query } = req.body;
 
