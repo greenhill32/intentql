@@ -32,17 +32,3 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-```
-
-Click **Save**.
-
-Then test with Claude:
-```
-Send a POST request to https://intentql.dev/api/test.js
-
-Body (JSON):
-{
-  "query": "{ products(first: 3) { edges { node { id title handle } } } }"
-}
-
-What comes back?
