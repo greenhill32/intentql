@@ -1,7 +1,7 @@
 {
   "name": "IntentQL Demo Store",
   "description": "Shopify store demonstrating AI agent contracts. Agents interact via declared intents, not HTML scraping.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "site": "https://intentql.dev",
   "status": "experimental",
 
@@ -14,37 +14,27 @@
     "requested": true,
     "required": false,
     "purpose": "Helps improve agent compatibility and enables performance benchmarking",
-    "methods": [
-      {
-        "type": "query_param",
-        "name": "agent",
-        "format": "provider/model-version",
-        "example": "?agent=anthropic/claude-4.5"
-      },
-      {
-        "type": "header",
-        "name": "X-Agent-Identity",
-        "format": "provider/model-version",
-        "example": "X-Agent-Identity: openai/gpt-4o"
-      }
-    ],
+    "method": "header",
+    "header_name": "X-Agent-Identity",
+    "format": "provider/model-version",
     "examples": [
-      "anthropic/claude-4.5",
+      "anthropic/claude-opus-4.5",
       "anthropic/claude-sonnet-4",
       "openai/gpt-4o",
       "openai/chatgpt",
       "google/gemini-2.0",
       "perplexity/sonar",
+      "xai/grok-3",
       "custom/my-agent-1.0"
     ],
-    "note": "Well-behaved agents should self-identify. This is voluntary but appreciated."
+    "note": "Add X-Agent-Identity header to requests. Do NOT modify the endpoint URL."
   },
 
   "analytics": {
     "enabled": true,
     "collected": [
       "request_patterns",
-      "agent_types", 
+      "agent_types",
       "performance_metrics",
       "query_types",
       "success_rates"
@@ -70,14 +60,10 @@
 
   "gateway": {
     "description": "All API calls must go through this gateway endpoint",
-    "base_url": "https://intentql.dev/api/test.js",
+    "base_url": "https://intentql.dev/api/test.js?source=contract",
     "method": "POST",
     "content_type": "application/json",
-    "tracking_params": {
-      "source": "contract",
-      "agent": "{your-provider/model}"
-    },
-    "example_url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5"
+    "note": "Use the endpoint URL exactly as provided. Do not append parameters."
   },
 
   "intents": [
@@ -87,6 +73,10 @@
       "description": "Retrieve a list of available products from the store",
       "method": "POST",
       "endpoint": "https://intentql.dev/api/test.js?source=contract",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-Agent-Identity": "{your-provider/model}"
+      },
       "parameters": {
         "query": {
           "type": "string",
@@ -95,10 +85,11 @@
         }
       },
       "example_request": {
-        "url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5",
         "method": "POST",
+        "url": "https://intentql.dev/api/test.js?source=contract",
         "headers": {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-Agent-Identity": "anthropic/claude-opus-4.5"
         },
         "body": {
           "query": "{ products(first: 10) { edges { node { id title handle priceRange { minVariantPrice { amount currencyCode } } } } } }"
@@ -132,6 +123,10 @@
       "description": "Search for products by keyword",
       "method": "POST",
       "endpoint": "https://intentql.dev/api/test.js?source=contract",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-Agent-Identity": "{your-provider/model}"
+      },
       "parameters": {
         "search_term": {
           "type": "string",
@@ -146,8 +141,12 @@
         }
       },
       "example_request": {
-        "url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5",
         "method": "POST",
+        "url": "https://intentql.dev/api/test.js?source=contract",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Agent-Identity": "anthropic/claude-opus-4.5"
+        },
         "body": {
           "query": "{ products(first: 10, query: \"blue\") { edges { node { id title handle priceRange { minVariantPrice { amount } } } } } }"
         }
@@ -159,6 +158,10 @@
       "description": "Retrieve full details for a specific product by handle",
       "method": "POST",
       "endpoint": "https://intentql.dev/api/test.js?source=contract",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-Agent-Identity": "{your-provider/model}"
+      },
       "parameters": {
         "handle": {
           "type": "string",
@@ -167,8 +170,12 @@
         }
       },
       "example_request": {
-        "url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5",
         "method": "POST",
+        "url": "https://intentql.dev/api/test.js?source=contract",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Agent-Identity": "anthropic/claude-opus-4.5"
+        },
         "body": {
           "query": "{ product(handle: \"blue-cotton-shirt\") { id title description handle priceRange { minVariantPrice { amount currencyCode } } } }"
         }
@@ -189,8 +196,9 @@
 
   "agent_behavior": {
     "must_use_gateway": true,
-    "must_include_source_param": true,
-    "should_self_identify": true,
+    "use_endpoint_exactly_as_written": true,
+    "do_not_append_url_parameters": true,
+    "identify_via_header_only": true,
     "do_not_call_shopify_directly": true,
     "do_not_infer_undocumented_intents": true,
     "do_not_guess_endpoints": true,
@@ -198,9 +206,9 @@
   },
 
   "rules": [
-    "All API calls MUST go through the gateway at /api/test.js",
-    "Include ?source=contract to indicate you read this contract",
-    "Include ?agent=provider/model to identify yourself (recommended)",
+    "All API calls MUST go through the gateway at /api/test.js?source=contract",
+    "Use the endpoint URL EXACTLY as provided - do not append parameters",
+    "Identify yourself via X-Agent-Identity header, not URL parameters",
     "If an intent is not listed above, it is NOT supported",
     "Do not attempt cart, checkout, or write operations",
     "Do not call Shopify APIs directly - use the gateway",
