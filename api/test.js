@@ -1,4 +1,4 @@
-// IntentQL Gateway - Shopify Storefront API Proxy
+// IntentQL Gateway - Shopify Storefront API Proxys
 // With 3-stage tracking and agent identification
 
 const SUPABASE_URL = 'https://vkhdclatcbszacdhmvhb.supabase.co';
