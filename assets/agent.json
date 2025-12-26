@@ -1,66 +1,217 @@
 {
   "name": "IntentQL Demo Store",
-  "version": "0.1.0",
-  "description": "Shopify store demonstrating agent contract discovery via IntentQL",
+  "description": "Shopify store demonstrating AI agent contracts. Agents interact via declared intents, not HTML scraping.",
+  "version": "0.2.0",
+  "site": "https://intentql.dev",
   "status": "experimental",
-  "site": "https://intentql-demo-greenhill.myshopify.com",
-  "protocol": "intentql",
-  "updated": "2025-12-25",
 
-  "constraints": {
-    "read_only": true,
-    "no_customer_data": true,
-    "no_checkout": true,
-    "no_cart_mutations": true,
-    "no_authentication_required": true
+  "discovery": {
+    "primary": "/assets/agent.json",
+    "alternate": "/.well-known/agent.json"
+  },
+
+  "agent_identification": {
+    "requested": true,
+    "required": false,
+    "purpose": "Helps improve agent compatibility and enables performance benchmarking",
+    "methods": [
+      {
+        "type": "query_param",
+        "name": "agent",
+        "format": "provider/model-version",
+        "example": "?agent=anthropic/claude-4.5"
+      },
+      {
+        "type": "header",
+        "name": "X-Agent-Identity",
+        "format": "provider/model-version",
+        "example": "X-Agent-Identity: openai/gpt-4o"
+      }
+    ],
+    "examples": [
+      "anthropic/claude-4.5",
+      "anthropic/claude-sonnet-4",
+      "openai/gpt-4o",
+      "openai/chatgpt",
+      "google/gemini-2.0",
+      "perplexity/sonar",
+      "custom/my-agent-1.0"
+    ],
+    "note": "Well-behaved agents should self-identify. This is voluntary but appreciated."
+  },
+
+  "analytics": {
+    "enabled": true,
+    "collected": [
+      "request_patterns",
+      "agent_types", 
+      "performance_metrics",
+      "query_types",
+      "success_rates"
+    ],
+    "not_collected": [
+      "ip_addresses",
+      "user_pii",
+      "conversation_content"
+    ],
+    "retention": "90 days",
+    "purpose": "Improve agent compatibility and validate contract effectiveness"
+  },
+
+  "capabilities": {
+    "read": true,
+    "search": true,
+    "write": false,
+    "commerce": false,
+    "authentication": false,
+    "cart": false,
+    "checkout": false
   },
 
   "gateway": {
+    "description": "All API calls must go through this gateway endpoint",
     "base_url": "https://intentql.dev/api/test.js",
-    "method": "GET",
-    "note": "All intents execute through this gateway. Shopify API is not called directly."
+    "method": "POST",
+    "content_type": "application/json",
+    "tracking_params": {
+      "source": "contract",
+      "agent": "{your-provider/model}"
+    },
+    "example_url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5"
   },
 
   "intents": [
     {
       "id": "list_products",
       "name": "List Products",
-      "description": "Fetch all available products from the catalog",
-      "endpoint": "https://intentql.dev/api/test.js",
-      "method": "GET",
-      "parameters": null,
-      "example": "GET https://intentql.dev/api/test.js",
-      "returns": "JSON with product array including id, title, handle, price"
+      "description": "Retrieve a list of available products from the store",
+      "method": "POST",
+      "endpoint": "https://intentql.dev/api/test.js?source=contract",
+      "parameters": {
+        "query": {
+          "type": "string",
+          "required": false,
+          "description": "GraphQL query. If omitted, returns first 30 products."
+        }
+      },
+      "example_request": {
+        "url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "query": "{ products(first: 10) { edges { node { id title handle priceRange { minVariantPrice { amount currencyCode } } } } } }"
+        }
+      },
+      "example_response": {
+        "data": {
+          "products": {
+            "edges": [
+              {
+                "node": {
+                  "id": "gid://shopify/Product/...",
+                  "title": "Blue Cotton Shirt",
+                  "handle": "blue-cotton-shirt",
+                  "priceRange": {
+                    "minVariantPrice": {
+                      "amount": "29.00",
+                      "currencyCode": "USD"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     },
     {
       "id": "search_products",
       "name": "Search Products",
-      "description": "Search products by keyword (coming soon)",
-      "endpoint": "https://intentql.dev/api/test.js",
-      "method": "GET",
+      "description": "Search for products by keyword",
+      "method": "POST",
+      "endpoint": "https://intentql.dev/api/test.js?source=contract",
       "parameters": {
-        "query": {
+        "search_term": {
           "type": "string",
-          "description": "Search term to filter products",
-          "required": false
+          "required": true,
+          "description": "Search keyword to find products"
+        },
+        "limit": {
+          "type": "integer",
+          "required": false,
+          "default": 10,
+          "max": 50
         }
       },
-      "status": "planned"
+      "example_request": {
+        "url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5",
+        "method": "POST",
+        "body": {
+          "query": "{ products(first: 10, query: \"blue\") { edges { node { id title handle priceRange { minVariantPrice { amount } } } } } }"
+        }
+      }
+    },
+    {
+      "id": "get_product",
+      "name": "Get Product Details",
+      "description": "Retrieve full details for a specific product by handle",
+      "method": "POST",
+      "endpoint": "https://intentql.dev/api/test.js?source=contract",
+      "parameters": {
+        "handle": {
+          "type": "string",
+          "required": true,
+          "description": "Product handle (URL slug)"
+        }
+      },
+      "example_request": {
+        "url": "https://intentql.dev/api/test.js?source=contract&agent=anthropic/claude-4.5",
+        "method": "POST",
+        "body": {
+          "query": "{ product(handle: \"blue-cotton-shirt\") { id title description handle priceRange { minVariantPrice { amount currencyCode } } } }"
+        }
+      }
     }
   ],
 
+  "constraints": {
+    "read_only": true,
+    "no_cart_operations": true,
+    "no_checkout": true,
+    "no_customer_data": true,
+    "no_order_history": true,
+    "no_inventory_modification": true,
+    "no_price_filtering": true,
+    "max_results_per_query": 50
+  },
+
+  "agent_behavior": {
+    "must_use_gateway": true,
+    "must_include_source_param": true,
+    "should_self_identify": true,
+    "do_not_call_shopify_directly": true,
+    "do_not_infer_undocumented_intents": true,
+    "do_not_guess_endpoints": true,
+    "assume_absence_means_not_supported": true
+  },
+
   "rules": [
-    "Only intents explicitly listed above are supported",
-    "Do not attempt to access Shopify APIs directly",
-    "Do not assume cart, checkout, or purchase capabilities exist",
-    "Do not attempt to access customer or order data",
-    "Do not invent endpoints not declared in this contract",
-    "All operations are read-only",
-    "If an intent is marked 'planned', it is not yet functional"
+    "All API calls MUST go through the gateway at /api/test.js",
+    "Include ?source=contract to indicate you read this contract",
+    "Include ?agent=provider/model to identify yourself (recommended)",
+    "If an intent is not listed above, it is NOT supported",
+    "Do not attempt cart, checkout, or write operations",
+    "Do not call Shopify APIs directly - use the gateway",
+    "Do not invent or guess endpoints",
+    "Read-only operations only"
   ],
 
-  "contact": {
-    "maintainer": "IntentQL",
-    "documentation": "https://intentql.dev"
-  }
+  "notes": [
+    "This is a demonstration store for the IntentQL protocol",
+    "All interactions are logged for research and validation purposes",
+    "Agents that follow contracts have higher success rates",
+    "See https://intentql.dev for protocol documentation"
+  ]
 }
