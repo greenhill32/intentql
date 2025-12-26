@@ -1,4 +1,4 @@
-// IntentQL Gateway - Shopify Storefront API Proxys
+// IntentQL Gateway - Shopify Storefront API Proxy
 // With 3-stage tracking and agent identification
 
 const SUPABASE_URL = 'https://vkhdclatcbszacdhmvhb.supabase.co';
@@ -7,7 +7,7 @@ const SUPABASE_KEY = 'sb_publishable_AgyxOAz7AUdQ82pgDGhKCg_yEvtHlVy';
 // Fire-and-forget logging to Supabase
 async function logRequest(data) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/agent_requests`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/agent_requests`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,9 +17,15 @@ async function logRequest(data) {
       },
       body: JSON.stringify(data)
     });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[LOG_ERROR]', response.status, errorText);
+    } else {
+      console.log('[LOG_SUCCESS]', 'Logged to Supabase');
+    }
   } catch (e) {
-    // Silent fail - don't block response
-    console.error('[LOG_ERROR]', e.message);
+    console.error('[LOG_ERROR]', e.name, e.message, e.cause || '');
   }
 }
 
@@ -36,14 +42,12 @@ module.exports = async function handler(req, res) {
   }
 
   // === CAPTURE AGENT IDENTIFICATION ===
-  // Priority: query param > header > unknown
   const agentIdentity = 
     req.query?.agent || 
     req.headers?.['x-agent-identity'] || 
     null;
   
   // === CAPTURE SOURCE (Stage 1 tracking) ===
-  // If they came from reading the contract, source=contract
   const source = req.query?.source || 'direct';
   const stage1Pass = source === 'contract';
 
@@ -60,7 +64,6 @@ module.exports = async function handler(req, res) {
     } catch (e) {}
   }
 
-  // Default query if none provided
   const isDefaultQuery = !query;
   if (!query) {
     query = `{
@@ -82,7 +85,7 @@ module.exports = async function handler(req, res) {
     }`;
   }
 
-  // Determine query type for logging
+  // Determine query type
   let queryType = 'custom';
   if (isDefaultQuery) {
     queryType = 'list_products';
@@ -114,7 +117,6 @@ module.exports = async function handler(req, res) {
 
     responseData = await response.json();
     
-    // Check for success and count products
     if (responseData?.data?.products?.edges) {
       productsReturned = responseData.data.products.edges.length;
       success = true;
@@ -124,7 +126,7 @@ module.exports = async function handler(req, res) {
     } else if (responseData?.errors) {
       errorMessage = responseData.errors[0]?.message || 'GraphQL error';
     } else {
-      success = true; // Other valid response
+      success = true;
     }
 
   } catch (error) {
@@ -136,30 +138,9 @@ module.exports = async function handler(req, res) {
   }
 
   const responseTime = Date.now() - startTime;
-
-  // === Stage 3: Accuracy ===
-  // Pass if we got real data back (success + products OR valid response)
   const stage3Pass = success && (productsReturned > 0 || !errorMessage);
 
-  // === FIRE-AND-FORGET LOGGING ===
-  // Don't await - let it run in background
-  logRequest({
-    user_agent: req.headers?.['user-agent'] || null,
-    referer: req.headers?.['referer'] || null,
-    agent_identity: agentIdentity,
-    source: source,
-    stage_1_discovery: stage1Pass,
-    stage_2_execution: true, // Always true - they hit the right endpoint
-    stage_3_accuracy: stage3Pass,
-    query_type: queryType,
-    query_text: query.substring(0, 500), // Truncate long queries
-    success: success,
-    products_returned: productsReturned,
-    response_time_ms: responseTime,
-    error_message: errorMessage
-  });
-
-  // Also log to Vercel console for debugging
+  // === LOG TO CONSOLE (always works) ===
   console.log('[AGENT_REQUEST]', JSON.stringify({
     time: new Date().toISOString(),
     agent: agentIdentity || 'unknown',
@@ -168,6 +149,23 @@ module.exports = async function handler(req, res) {
     products: productsReturned,
     ms: responseTime
   }));
+
+  // === LOG TO SUPABASE (await to ensure it completes before response) ===
+  await logRequest({
+    user_agent: req.headers?.['user-agent'] || null,
+    referer: req.headers?.['referer'] || null,
+    agent_identity: agentIdentity,
+    source: source,
+    stage_1_discovery: stage1Pass,
+    stage_2_execution: true,
+    stage_3_accuracy: stage3Pass,
+    query_type: queryType,
+    query_text: query.substring(0, 500),
+    success: success,
+    products_returned: productsReturned,
+    response_time_ms: responseTime,
+    error_message: errorMessage
+  });
 
   // === RETURN RESPONSE ===
   if (errorMessage && !success) {
