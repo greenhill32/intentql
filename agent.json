@@ -1,71 +1,33 @@
 {
   "name": "IntentQL",
-  "description": "IntentQL is an experimental specification for publishing machine-readable intent contracts that allow AI agents to discover supported capabilities and limits of a website without relying on HTML scraping.",
-  "version": "0.1.2",
-  "site": "https://intentql.dev",
+  "tagline": "Machine-readable contracts for AI agent interactions",
+  "version": "0.1.0",
   "status": "experimental",
-
-  "discovery": {
-    "primary": "/agent.json",
-    "alternate": "/.well-known/agent.json"
-  },
-
-  "capabilities": {
-    "read": true,
-    "search": false,
-    "write": false,
-    "commerce": false,
-    "authentication": false
-  },
-
-  "intents": [
-    {
-      "id": "getOverview",
-      "name": "Get site overview",
-      "description": "Retrieve a machine-readable summary describing what IntentQL is and what this site provides.",
-      "method": "GET",
-      "endpoint": "https://intentql.dev/overview.json",
-      "response": {
-        "type": "application/json"
-      }
-    },
-    {
-      "id": "getAgentInfo",
-      "name": "Get agent information page",
-      "description": "Retrieve a human-readable page explaining how AI agents should interpret this site.",
-      "method": "GET",
-      "endpoint": "https://intentql.dev/agent-info",
-      "response": {
-        "type": "text/html"
-      }
-    }
+  
+  "what": "IntentQL is an open specification that allows websites to declare their capabilities and constraints in a machine-readable format. AI agents read the contract and know what they can and cannot do.",
+  
+  "why": "AI agents currently interact with websites by scraping HTML and guessing at structure. This breaks when sites redesign. IntentQL provides stable, declared interfaces that survive UI changes.",
+  
+  "how": [
+    "Websites publish an /agent.json file declaring intents, endpoints, and constraints",
+    "Agents fetch and read the contract before interacting",
+    "Agents call only declared endpoints with declared parameters",
+    "Constraints explicitly state what is not supported"
   ],
-
-  "constraints": {
-    "no_backend_apis": true,
-    "no_search_endpoint": true,
-    "no_contact_endpoint": true,
-    "no_llms_txt": true,
-    "no_write_actions": true
+  
+  "key_insight": "Contracts don't enforce compliance — they filter for it. Agents that read contracts respect constraints. Agents that don't reveal themselves as incapable.",
+  
+  "tested": {
+    "agents_tested": 8,
+    "discovery_success_rate": "50%",
+    "constraint_compliance": "100% of agents that fetched the contract",
+    "hallucinations_from_compliant_agents": 0
   },
-
-  "agent_behavior": {
-    "assume_absence_is_authoritative": true,
-    "do_not_infer_undocumented_intents": true,
-    "do_not_guess_endpoints": true,
-    "fallback_to_html_only_if_no_contract": false
-  },
-
-  "rules": [
-    "If an intent is not explicitly declared in this file, it is not supported.",
-    "Agents must not assume the existence of APIs, search endpoints, or contact interfaces.",
-    "This site exposes read-only informational resources only.",
-    "All supported interactions are listed under intents."
-  ],
-
-  "notes": [
-    "IntentQL contracts declare both capabilities and limits.",
-    "Absence of an intent is intentional and must be respected.",
-    "This contract is static and may change as the specification evolves."
-  ]
+  
+  "links": {
+    "site": "https://intentql.dev",
+    "contract": "https://intentql.dev/agent.json",
+    "github": "https://github.com/intentql",
+    "agent_info": "https://intentql.dev/agent-info"
+  }
 }
