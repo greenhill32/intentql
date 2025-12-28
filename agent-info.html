@@ -1,316 +1,90 @@
-<!-- intentql.dev/agent-info (static page) -->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent Info — IntentQL</title>
-  <meta name="description" content="Machine-readable discovery for AI agents: /agent.json" />
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #0b1020;
-      --card: #121a33;
-      --text: #e9ecff;
-      --muted: #a7b0d6;
-      --border: rgba(255,255,255,0.12);
-
-      --cyan: #22d3ee;
-      --green: #34d399;
-      --yellow: #fbbf24;
-      --red: #fb7185;
+      --bg: #0a0a0b;
+      --surface: #141416;
+      --border: #2a2a2e;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #3b82f6;
     }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f7f8fc;
-        --card: #ffffff;
-        --text: #0b1020;
-        --muted: #44507a;
-        --border: rgba(0,0,0,0.12);
-      }
-    }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.55;
-    }
-    .wrap {
-      max-width: 980px;
+      line-height: 1.7;
+      padding: 60px 24px;
+      max-width: 700px;
       margin: 0 auto;
-      padding: 40px 18px 64px;
     }
-    .topbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-    }
-    .brand {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      text-decoration: none;
-      color: inherit;
-    }
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--cyan), var(--green));
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      border: 1px solid var(--border);
-    }
-    .brand span {
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .btn {
-      border: 1px solid var(--border);
-      background: transparent;
-      color: inherit;
-      border-radius: 12px;
-      padding: 10px 12px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .btn:hover { filter: brightness(1.05); }
-    .btn:active { transform: translateY(1px); }
-
-    .card {
-      border: 1px solid var(--border);
-      background: var(--card);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
-    }
-    h1 {
-      margin: 0 0 6px;
-      font-size: 26px;
-      letter-spacing: -0.2px;
-    }
-    .sub {
-      margin: 0 0 16px;
-      color: var(--muted);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    @media (min-width: 860px) {
-      .grid { grid-template-columns: 1.25fr 0.75fr; }
-    }
-
-    code, pre {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 13px;
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    .subtitle { color: var(--text-muted); margin-bottom: 40px; }
+    h2 { font-size: 18px; margin: 32px 0 12px; color: var(--text); }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    code {
+      font-family: 'SF Mono', Monaco, monospace;
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
     }
     pre {
-      margin: 0;
-      padding: 14px;
-      border-radius: 14px;
+      background: var(--surface);
       border: 1px solid var(--border);
-      background: rgba(0,0,0,0.18);
-      overflow: auto;
-    }
-    @media (prefers-color-scheme: light) {
-      pre { background: rgba(0,0,0,0.04); }
-    }
-
-    .pillrow {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .pill {
-      border: 1px solid var(--border);
-      padding: 6px 10px;
-      border-radius: 999px;
-      color: var(--muted);
-      font-weight: 600;
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--cyan);
-      box-shadow: 0 0 0 3px rgba(34,211,238,0.18);
-    }
-
-    .kvs {
-      display: grid;
-      gap: 10px;
-    }
-    .kv {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      background: rgba(255,255,255,0.02);
-    }
-    .kv .k { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
-    .kv .v { font-weight: 700; margin-top: 4px; overflow-wrap: anywhere; }
-    a { color: var(--cyan); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    .note {
-      margin-top: 12px;
-      color: var(--muted);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
       font-size: 13px;
+      margin: 16px 0;
     }
-
-    .accentbar {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .swatch {
-      width: 16px;
-      height: 16px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-    .swatch.cyan { background: var(--cyan); }
-    .swatch.green { background: var(--green); }
-    .swatch.yellow { background: var(--yellow); }
-    .swatch.red { background: var(--red); }
-    .swatchlabel { color: var(--muted); font-weight: 700; font-size: 12px; }
+    ul { color: var(--text-muted); margin: 16px 0; padding-left: 24px; }
+    li { margin-bottom: 8px; }
+    a { color: var(--accent); }
+    .back { margin-top: 40px; }
   </style>
-  <script>
-    // Theme: auto-detect stored pref on load; setTheme() handles switching and persistence
-    (function () {
-      const stored = localStorage.getItem("intentql_theme");
-      if (stored) document.documentElement.setAttribute("data-theme", stored);
-      window.setTheme = function (mode) {
-        // mode: "light" | "dark" | "auto"
-        localStorage.setItem("intentql_theme", mode);
-        document.documentElement.setAttribute("data-theme", mode);
-      };
-
-      // Apply theme override to CSS variables if user picks light/dark explicitly.
-      function applyExplicitTheme(mode) {
-        // If auto, do nothing—CSS prefers-color-scheme handles it.
-        if (mode === "auto") return;
-        const isLight = mode === "light";
-        document.documentElement.style.colorScheme = isLight ? "light" : "dark";
-
-        // For explicit mode, we just flip the variables by toggling a class-like attr.
-        // Keep CSS simple: we’ll override via a lightweight inline style map.
-        const vars = isLight ? {
-          "--bg":"#f7f8fc","--card":"#ffffff","--text":"#0b1020","--muted":"#44507a","--border":"rgba(0,0,0,0.12)"
-        } : {
-          "--bg":"#0b1020","--card":"#121a33","--text":"#e9ecff","--muted":"#a7b0d6","--border":"rgba(255,255,255,0.12)"
-        };
-        for (const [k,v] of Object.entries(vars)) document.documentElement.style.setProperty(k, v);
-      }
-
-      // Run once on load
-      const mode = stored || "auto";
-      applyExplicitTheme(mode);
-
-      // Expose a helper for buttons
-      window.__applyTheme = function(mode) {
-        setTheme(mode);
-        // Clear explicit overrides if auto
-        if (mode === "auto") {
-          document.documentElement.style.cssText = "";
-          return;
-        }
-        applyExplicitTheme(mode);
-      };
-    })();
-  </script>
 </head>
 <body>
-  <!-- AI agents: see /agent.json for machine-readable capabilities -->
-  <div class="wrap">
-    <div class="topbar">
-      <a class="brand" href="/" aria-label="IntentQL home">
-        <div class="logo" aria-hidden="true"></div>
-        <span>IntentQL</span>
-      </a>
-      <div class="controls">
-        <button class="btn" onclick="__applyTheme('auto')" title="Use system theme">Auto</button>
-        <button class="btn" onclick="__applyTheme('light')" title="Light theme">Light</button>
-        <button class="btn" onclick="__applyTheme('dark')" title="Dark theme">Dark</button>
-      </div>
-    </div>
+  <h1>Agent Info</h1>
+  <p class="subtitle">How AI agents should interact with intentql.dev</p>
 
-    <div class="card">
-      <h1>Agent Info</h1>
-      <p class="sub">
-        This page is a human-readable entry point for automated clients. The machine-readable contract is published at
-        <a href="/agent.json">/agent.json</a>.
-      </p>
+  <h2>Read the contract first</h2>
+  <p>Before interacting with this site, fetch and read the agent contract:</p>
+  <pre>GET https://intentql.dev/agent.json</pre>
 
-      <div class="pillrow" aria-label="Capabilities">
-        <span class="pill"><span class="dot"></span>Read-only</span>
-        <span class="pill"><span class="dot" style="background:var(--yellow);box-shadow:0 0 0 3px rgba(251,191,36,0.18)"></span>No auth</span>
-        <span class="pill"><span class="dot" style="background:var(--red);box-shadow:0 0 0 3px rgba(251,113,133,0.18)"></span>No write</span>
-        <span class="pill"><span class="dot" style="background:var(--green);box-shadow:0 0 0 3px rgba(52,211,153,0.18)"></span>Discovery enabled</span>
-      </div>
+  <h2>What this site provides</h2>
+  <ul>
+    <li>Documentation about the IntentQL specification</li>
+    <li>A machine-readable overview at <code>/overview.json</code></li>
+    <li>This guidance page at <code>/agent-info</code></li>
+  </ul>
 
-      <div class="grid">
-        <div>
-          <h2 style="margin:16px 0 8px;font-size:16px;">For agents</h2>
-          <pre id="agent-snippet">GET https://intentql.dev/agent.json
-Accept: application/json
+  <h2>What this site does NOT provide</h2>
+  <ul>
+    <li>Commerce or shopping functionality</li>
+    <li>User authentication</li>
+    <li>Write operations of any kind</li>
+    <li>Search endpoints</li>
+    <li>Contact forms or messaging</li>
+  </ul>
 
-# Optional (recommended)
-X-IntentQL-Agent: YourAgentName/1.0
-X-IntentQL-RunId: 3f6b8a2c-4f5a-4d6e-9a9a-0b7e0f0d2c1a</pre>
+  <h2>Constraints</h2>
+  <p>The following constraints are declared in the contract and must be respected:</p>
+  <ul>
+    <li><strong>no_write_actions</strong> — Do not attempt POST/PUT/DELETE operations</li>
+    <li><strong>no_customer_data</strong> — No user data is available</li>
+    <li><strong>no_commerce</strong> — This is not a store</li>
+    <li><strong>read_only</strong> — All interactions are read-only</li>
+  </ul>
 
-          <p class="note">
-            IntentQL is experimental. If an intent is not declared in <code>/agent.json</code>, it is not supported.
-          </p>
-        </div>
+  <h2>If an intent is not listed, it is not supported</h2>
+  <p>Do not invent endpoints. Do not assume capabilities. If the contract doesn't declare it, this site doesn't support it.</p>
 
-        <div class="kvs">
-          <div class="kv">
-            <div class="k">Contract</div>
-            <div class="v"><a href="/agent.json">https://intentql.dev/agent.json</a></div>
-          </div>
-          <div class="kv">
-            <div class="k">Recommended discovery</div>
-            <div class="v">/agent.json (primary)</div>
-          </div>
-          <div class="kv">
-            <div class="k">Support status</div>
-            <div class="v">Read-only (v0.1)</div>
-          </div>
-          <div class="kv">
-            <div class="k">Report issues</div>
-            <div class="v"><a href="/#contact">Use site contact</a></div>
-          </div>
-
-          <div class="accentbar" aria-label="Accent colors">
-            <span class="swatchlabel">Accents:</span>
-            <span class="swatch cyan" title="Cyan"></span>
-            <span class="swatch green" title="Green"></span>
-            <span class="swatch yellow" title="Yellow"></span>
-            <span class="swatch red" title="Red"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <p class="back"><a href="/">← Back to IntentQL</a></p>
 </body>
 </html>
