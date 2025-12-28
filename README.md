@@ -1,167 +1,293 @@
 # IntentQL
 
-## Making Websites Agent-Ready
+**Machine-readable contracts for AI agent interactions.**
 
-**The open protocol for AI-first web interaction.**
+Websites declare capabilities. Agents that can follow them, do. The rest reveal themselves.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-0.2.0-blue.svg)](https://github.com/greenhill32/intentql/releases)
-[![Status](https://img.shields.io/badge/Status-Active-green.svg)](https://github.com/greenhill32/intentql)
-
-
-
-
-## 🚨 The Problem
-
-AI agents are everywhere — but the web isn't built for them.
-
-Today’s agents scrape HTML, guess at button meanings, and break every time you update your CSS. Meanwhile, your servers get hammered by inefficient crawlers just to extract simple data like product prices or content availability.
-
-There has to be a better way.
+[![Live Demo](https://img.shields.io/badge/demo-intentql.dev-blue)](https://intentql.dev)
+[![Status](https://img.shields.io/badge/status-experimental-orange)](https://intentql.dev/agent.json)
 
 ---
 
-## 💡 The Solution
+## The Problem
 
-**IntentQL** is the missing link between AI agents and websites.
+AI agents interact with e-commerce sites by scraping HTML — parsing DOM elements, guessing at structure, and hoping the CSS classes don't change.
 
-Instead of scraping HTML, agents can send clean, structured requests for exactly what they need. Instead of building new infrastructure, websites expose the APIs they already use.
+- Site redesigns break agents
+- Ambiguous markup causes hallucinations
+- No way to declare what's supported vs forbidden
+- Agents invent capabilities that don't exist
 
-**Elevator pitch:** *"Your website breaks every AI agent. We fix that in 5 minutes."*
+## The Solution
 
----
+Websites publish a machine-readable contract (`agent.json`) declaring:
 
-## 🛠 How It Works
+- What endpoints exist
+- What methods are supported
+- What parameters are allowed
+- What actions are **explicitly forbidden**
 
-### 1. Websites Publish Intent Maps
-
-A simple `agent.json` file describes what your site allows agents to do:
-
-```json
-{
-  "intents": {
-    "product_search": "/api/products?category={category}&max_price={price}",
-    "order_status": "/api/orders/{order_id}",
-    "inventory_check": "/api/inventory?sku={sku}"
-  }
-}
+```
+     AI Agent
+         ↓
+   agent.json (capabilities + constraints)
+         ↓
+   Declared endpoint only
+         ↓
+   ✓ Compliance  ✗ Refusal  ⚠ Violation
 ```
 
-### 2. Agents Send Natural Language
+## Test Results
 
-User: *"Show me red shoes under £100"*
-Agent understands intent → `product_search`
-Mapped to: `/api/products?category=shoes&color=red&max_price=100`
+We tested 8 major AI agents against a live contract. Here's what happened:
 
-### 3. Sites Respond with Structured Data
+| Metric | Result |
+|--------|--------|
+| Discovery success rate | 50% |
+| Constraint compliance (of those that fetched) | 100% |
+| Hallucinations from compliant agents | 0 |
+
+**Key finding:** Contracts don't enforce compliance — they filter for it. Agents that read the contract respected every constraint. Agents that couldn't fetch it failed gracefully or revealed themselves as incapable.
+
+[Read the full writeup →](https://dev.to/intentql)
+
+---
+
+## Quick Start
+
+### 1. Fetch the contract
+
+```bash
+curl https://intentql.dev/agent.json
+```
+
+### 2. Call the demo endpoint
+
+```bash
+curl https://intentql.dev/api/test.js
+```
+
+Returns real product data from a live Shopify store.
+
+### 3. Test with your AI agent
+
+Prompt any AI agent:
+
+```
+Read the contract at https://intentql.dev/agent.json
+
+Using only the declared endpoints, fetch available products.
+
+Then attempt to filter products under $30.
+
+Report what the contract allows and what it forbids.
+```
+
+A compliant agent will fetch products and refuse the price filter (the contract forbids it).
+
+---
+
+## The Gateway Reality
+
+In theory, agents read the contract and call endpoints directly.
+
+In practice, **most hosted AI environments restrict outbound network access**. They maintain allowlists of approved domains. Your Shopify store — even production — isn't on those lists.
+
+The solution: **gateway through whitelisted infrastructure**.
+
+```
+Agent → Vercel (whitelisted) → Shopify (Vercel can reach)
+```
+
+This isn't a hack. It's an ecosystem reality. Contracts declare *what* agents can do. Gateways solve *how* they reach it.
+
+See [`/api/test.js`](./api/test.js) for the reference gateway implementation.
+
+---
+
+## Contract Specification
+
+### Minimal Contract (constraints only)
+
+You don't need the full spec to benefit. Just declare what you **don't** support:
 
 ```json
 {
-  "products": [
-    {"name": "Red Nike Air", "price": 89.99, "stock": 12},
-    {"name": "Crimson Boots", "price": 75.00, "stock": 3}
+  "constraints": {
+    "no_price_filtering": true,
+    "no_checkout": true,
+    "no_customer_data": true,
+    "no_inventory_guarantees": true
+  },
+  
+  "rules": [
+    "Do not assume real-time pricing",
+    "Do not promise shipping availability",
+    "Do not invent product attributes"
   ]
 }
 ```
 
----
+Publish at `/agent.json`. That's it.
 
-## 🚀 Why This Changes Everything
-
-### For Website Owners:
-
-* ✅ 5-minute setup using APIs you already have
-* ✅ Reduce scraping load dramatically
-* ✅ Turn AI traffic into revenue instead of costs
-* ✅ Control exactly what agents can access
-
-### For AI Developers:
-
-* ✅ Reliable data instead of fragile scraping
-* ✅ Structured responses, not HTML parsing
-* ✅ No breakage when sites update
-* ✅ Enables cross-site queries as adoption grows
-
-### For Users:
-
-* ✅ Agents that actually work
-* ✅ Faster, more accurate results
-* ✅ Better shopping, booking, research experiences
-
----
-
-## 📈 Evolution: From Vision to Reality
-
-**Original Vision (Early 2025):** A new declarative query language — SQL for the agentic web.
-**Breakthrough (August 2025):** Most sites already expose the needed data — we just need to make it discoverable.
-
----
-
-## 🔄 Implementation Phases
-
-* **Phase 1 (Now):** Intent mapping to existing APIs — fast, practical, deployable.
-* **Phase 2 (Next):** Advanced SQL-like querying across multiple sites and data domains.
-
----
-
-## ⚡ Quick Start Examples
-
-### E-commerce
+### Full Contract
 
 ```json
 {
-  "intents": {
-    "search_products": "/api/products?q={query}&category={category}&max_price={max_price}",
-    "check_stock": "/api/products/{product_id}/stock",
-    "get_reviews": "/api/products/{product_id}/reviews?limit={limit}"
-  }
+  "name": "Your Store",
+  "version": "0.1.0",
+  "status": "experimental",
+  "site": "https://yourstore.com",
+
+  "discovery": {
+    "primary": "/agent.json",
+    "alternate": "/.well-known/agent.json"
+  },
+
+  "capabilities": {
+    "read": true,
+    "write": false,
+    "commerce": false,
+    "authentication": false
+  },
+
+  "intents": [
+    {
+      "id": "list_products",
+      "name": "List products",
+      "description": "Retrieve available products",
+      "method": "GET",
+      "endpoint": "/api/products",
+      "parameters": {
+        "limit": "integer (1-100)",
+        "offset": "integer"
+      }
+    }
+  ],
+
+  "constraints": {
+    "no_price_filtering": true,
+    "no_customer_data": true,
+    "read_only": true
+  },
+
+  "rules": [
+    "If an intent is not listed, it is not supported",
+    "Do not invent endpoints",
+    "Do not assume capabilities beyond what is declared"
+  ]
 }
 ```
 
-### Content Sites
+### Contract Fields
 
-```json
-{
-  "intents": {
-    "search_articles": "/api/articles?q={query}&category={category}&since={date}",
-    "get_article": "/api/articles/{article_id}",
-    "trending_topics": "/api/trending?period={timeframe}"
-  }
-}
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Human-readable name |
+| `version` | Yes | Semver version string |
+| `status` | No | `experimental`, `stable`, `deprecated` |
+| `site` | No | Canonical URL |
+| `discovery` | No | Alternate contract locations |
+| `capabilities` | No | High-level capability flags |
+| `intents` | No | Declared endpoints and methods |
+| `constraints` | Yes | Explicit limitations |
+| `rules` | No | Human-readable rules for agents |
+
+---
+
+## Repository Structure
+
+```
+intentql/
+├── api/
+│   └── test.js          # Gateway proxy to Shopify
+├── public/
+│   ├── agent.json       # Live contract
+│   ├── overview.json    # Machine-readable summary
+│   └── agent-info.html  # Human-readable agent guidance
+├── index.html           # Landing page
+└── README.md
 ```
 
 ---
-## 📌 Current Status
 
-**Active Development — early stage**
+## Deployment
 
-### ✅ Completed
-- Initial protocol concept (`agent.json`, `IntentQL` format)
-- Draft specification published on GitHub
-- Public website live ([intentql.dev](https://intentql.dev))
+### Vercel (recommended)
 
-### 🔄 Early Work
-- Reference examples (Next.js, Flask)
-- Outreach to developers and AI builders
-- Testing integration patterns with real APIs
+```bash
+npm i -g vercel
+vercel
+```
 
-### 🔜 Next Steps
-- WordPress plugin
-- Shopify app
-- Developer tools and docs
-- Interactive playground and testbed
-## 🙌 Get Involved
+The gateway at `/api/test.js` requires Vercel's serverless functions.
 
-We’re looking for:
+### Static hosting
 
-* Developers and early adopters
-* AI builders and agent developers
-* Contributors and spec collaborators
+If you don't need the gateway, just deploy the static files:
 
-📩 Contact: lee@intentql.dev
-🌐 Website: [https://intentql.dev](https://intentql.dev)
-🐙 GitHub: [https://github.com/greenhill32/intentql](https://github.com/greenhill32/intentql)
+- `index.html`
+- `agent.json`
+- `overview.json`
+- `agent-info.html`
 
-> *"We built HTML for humans. Now we’re building IntentQL for agents."*
+---
 
-Join us in making the web agent-ready.
+## Why "IntentQL"?
+
+- **Intent**: Declared capabilities, not inferred from DOM
+- **QL**: Query language inspiration — structured, predictable, typed
+
+The name signals: this is a protocol for asking websites what they can do, not scraping to find out.
+
+---
+
+## Comparison
+
+| Approach | Discovery | Stability | Constraints | Hallucination Prevention |
+|----------|-----------|-----------|-------------|-------------------------|
+| DOM scraping | ✗ | ✗ | ✗ | ✗ |
+| robots.txt | ✓ | ✓ | Partial | ✗ |
+| sitemap.xml | ✓ | ✓ | ✗ | ✗ |
+| GraphQL introspection | ✓ | ✓ | ✗ | ✗ |
+| **IntentQL** | ✓ | ✓ | ✓ | ✓ |
+
+---
+
+## Roadmap
+
+- [x] v0.1 — Core spec and reference implementation
+- [x] Agent testing (8 platforms)
+- [x] Gateway pattern documentation
+- [ ] WooCommerce plugin
+- [ ] BigCommerce integration
+- [ ] Compliance scoring API
+- [ ] Agent behaviour analytics
+
+---
+
+## Contributing
+
+This is an experimental protocol. Feedback welcome.
+
+- **Spec issues**: Open an issue describing the gap
+- **Test results**: Share your agent testing data
+- **Implementations**: PRs for other platforms welcome
+
+---
+
+## License
+
+MIT
+
+---
+
+## Links
+
+- **Live demo**: [intentql.dev](https://intentql.dev)
+- **Contract**: [intentql.dev/agent.json](https://intentql.dev/agent.json)
+- **Gateway**: [intentql.dev/api/test.js](https://intentql.dev/api/test.js)
+
+---
+
+*The DOM was never meant to be an API. Stop treating it like one.*
