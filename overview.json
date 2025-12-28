@@ -1,57 +1,33 @@
 {
   "name": "IntentQL",
+  "tagline": "Machine-readable contracts for AI agent interactions",
+  "version": "0.1.0",
   "status": "experimental",
-  "version": "0.1.1",
-  "site": "https://intentql.dev",
-
-  "summary": "IntentQL is an experimental specification that defines how websites can publish machine-readable intent contracts, allowing AI agents to discover what actions or capabilities a site supports without relying on brittle HTML scraping.",
-
-  "problem_statement": "AI agents currently interact with websites by inferring intent from HTML structure and visual cues. This approach is fragile, expensive, and unreliable, and it provides no way for websites to explicitly declare supported actions or to measure agent demand.",
-
-  "what_intentql_provides": [
-    "A convention for publishing intent contracts via /agent.json",
-    "Explicit declaration of supported intents and capabilities",
-    "Clear boundaries for what is and is not supported",
-    "A measurable surface for agent discovery and interaction"
+  
+  "what": "IntentQL is an open specification that allows websites to declare their capabilities and constraints in a machine-readable format. AI agents read the contract and know what they can and cannot do.",
+  
+  "why": "AI agents currently interact with websites by scraping HTML and guessing at structure. This breaks when sites redesign. IntentQL provides stable, declared interfaces that survive UI changes.",
+  
+  "how": [
+    "Websites publish an /agent.json file declaring intents, endpoints, and constraints",
+    "Agents fetch and read the contract before interacting",
+    "Agents call only declared endpoints with declared parameters",
+    "Constraints explicitly state what is not supported"
   ],
-
-  "important_clarification": "IntentQL does not require a site to expose existing backend APIs. Intents may describe read-only capabilities, static resources, navigational affordances, or backend endpoints where available.",
-
-  "current_capabilities": {
-    "contract_discovery": true,
-    "read_only": true,
-    "write_actions": false,
-    "authentication": false,
-    "commerce": false
+  
+  "key_insight": "Contracts don't enforce compliance — they filter for it. Agents that read contracts respect constraints. Agents that don't reveal themselves as incapable.",
+  
+  "tested": {
+    "agents_tested": 8,
+    "discovery_success_rate": "50%",
+    "constraint_compliance": "100% of agents that fetched the contract",
+    "hallucinations_from_compliant_agents": 0
   },
-
-  "design_principles": [
-    "Contracts over scraping",
-    "Explicit over inferred intent",
-    "Capabilities before implementation",
-    "Measurable interactions",
-    "Opt-in and non-invasive",
-    "Web-native and backend-agnostic"
-  ],
-
-  "how_agents_should_use_this_site": [
-    "Fetch /agent.json to discover declared intents and capabilities",
-    "Use only endpoints or resources explicitly listed in the contract",
-    "Assume no capabilities beyond those declared",
-    "Fallback to HTML only if no intent contract is available"
-  ],
-
-  "non_goals": [
-    "Replacing existing APIs or SDKs",
-    "Autonomous execution without consent",
-    "Bypassing authentication, paywalls, or access controls",
-    "Tracking users or agents across unrelated sites"
-  ],
-
-  "related_resources": {
-    "agent_contract": "/agent.json",
-    "agent_info_page": "/agent-info"
-  },
-
-  "notes": "IntentQL is an early-stage experiment. The specification and conventions may evolve as real-world agent behavior and adoption are observed."
+  
+  "links": {
+    "site": "https://intentql.dev",
+    "contract": "https://intentql.dev/agent.json",
+    "github": "https://github.com/intentql",
+    "agent_info": "https://intentql.dev/agent-info"
+  }
 }
