@@ -1,13 +1,16 @@
 {
+  "spec_version": "1.0.0-draft",
   "name": "IntentQL Demo Store",
   "description": "Shopify store demonstrating AI agent contracts. Agents interact via declared intents, not HTML scraping.",
-  "version": "0.2.1",
+  "version": "0.3.0",
+  "last_updated": "2025-12-28T00:00:00Z",
   "site": "https://intentql.dev",
   "status": "experimental",
 
   "discovery": {
     "primary": "/assets/agent.json",
-    "alternate": "/.well-known/agent.json"
+    "alternate": "/.well-known/agent.json",
+    "cache_ttl_seconds": 3600
   },
 
   "agent_identification": {
@@ -44,7 +47,7 @@
       "user_pii",
       "conversation_content"
     ],
-    "retention": "90 days",
+    "retention_days": 90,
     "purpose": "Improve agent compatibility and validate contract effectiveness"
   },
 
@@ -60,10 +63,13 @@
 
   "gateway": {
     "description": "All API calls must go through this gateway endpoint",
-    "base_url": "https://intentql.dev/api/test.js?source=contract",
+    "base_url": "https://intentql.dev/api/test.js",
+    "required_params": {
+      "source": "contract"
+    },
     "method": "POST",
     "content_type": "application/json",
-    "note": "Use the endpoint URL exactly as provided. Do not append parameters."
+    "note": "Use the endpoint URL exactly as provided. Do not append additional parameters."
   },
 
   "intents": [
@@ -194,6 +200,39 @@
     "max_results_per_query": 50
   },
 
+  "post_processing_rules": {
+    "description": "Expected agent behaviour when presenting data to users. These rules govern output, not API calls.",
+    "enforcement": "voluntary",
+    "purpose": "Establishes compliance criteria for benchmarking agent accuracy",
+    "rules": {
+      "present_data_as_returned": {
+        "enabled": true,
+        "description": "Present API response data without modification or filtering"
+      },
+      "no_client_side_filtering": {
+        "enabled": true,
+        "description": "Do not filter results by criteria not supported by the API (e.g., price ranges)"
+      },
+      "no_currency_conversion": {
+        "enabled": true,
+        "description": "Display prices in the currency returned by the API"
+      },
+      "no_fabricated_data": {
+        "enabled": true,
+        "description": "Do not add product attributes, reviews, ratings, or availability not present in response"
+      },
+      "no_inferred_categorisation": {
+        "enabled": true,
+        "description": "Do not categorise products beyond data explicitly provided"
+      },
+      "acknowledge_data_source": {
+        "enabled": true,
+        "description": "When presenting results, indicate data comes from this contract/store"
+      }
+    },
+    "compliance_note": "Violations of post-processing rules cannot be detected server-side but will be evaluated in agent benchmarking tests"
+  },
+
   "agent_behavior": {
     "must_use_gateway": true,
     "use_endpoint_exactly_as_written": true,
@@ -205,6 +244,56 @@
     "assume_absence_means_not_supported": true
   },
 
+  "error_responses": {
+    "description": "Expected error formats from the gateway",
+    "examples": {
+      "api_failure": {
+        "error": "Shopify API call failed",
+        "message": "Connection timeout"
+      },
+      "invalid_query": {
+        "errors": [
+          {
+            "message": "Parse error on query",
+            "locations": [{"line": 1, "column": 15}]
+          }
+        ]
+      }
+    }
+  },
+
+  "compliance_scoring": {
+    "description": "Criteria used to evaluate agent compliance in benchmarks",
+    "categories": {
+      "discovery": {
+        "weight": 20,
+        "criteria": [
+          "Fetched agent.json before calling API",
+          "Read and acknowledged contract terms"
+        ]
+      },
+      "execution": {
+        "weight": 40,
+        "criteria": [
+          "Used correct endpoint URL",
+          "Did not append URL parameters",
+          "Sent valid GraphQL query",
+          "Included X-Agent-Identity header"
+        ]
+      },
+      "accuracy": {
+        "weight": 40,
+        "criteria": [
+          "Returned real data from API response",
+          "Did not fabricate products or attributes",
+          "Did not apply unsupported filtering",
+          "Preserved original currency and prices"
+        ]
+      }
+    },
+    "scoring_note": "Agents are scored out of 100 based on weighted compliance across categories"
+  },
+
   "rules": [
     "All API calls MUST go through the gateway at /api/test.js?source=contract",
     "Use the endpoint URL EXACTLY as provided - do not append parameters",
@@ -213,13 +302,20 @@
     "Do not attempt cart, checkout, or write operations",
     "Do not call Shopify APIs directly - use the gateway",
     "Do not invent or guess endpoints",
-    "Read-only operations only"
+    "Read-only operations only",
+    "Present retrieved data accurately without client-side filtering or fabrication"
   ],
 
   "notes": [
     "This is a demonstration store for the IntentQL protocol",
     "All interactions are logged for research and validation purposes",
     "Agents that follow contracts have higher success rates",
+    "Post-processing compliance is evaluated in benchmarking, not enforced at runtime",
     "See https://intentql.dev for protocol documentation"
-  ]
+  ],
+
+  "contact": {
+    "issues": "https://github.com/intentql/spec/issues",
+    "documentation": "https://intentql.dev/docs"
+  }
 }
