@@ -1,58 +1,19 @@
 // IntentQL Gateway - Shopify Storefront API Proxy
-// With 3-stage tracking and agent identification
-
-const SUPABASE_URL = 'https://vkhdclatcbszacdhmvhb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_AgyxOAz7AUdQ82pgDGhKCg_yEvtHlVy';
-
-// Fire-and-forget logging to Supabase
-async function logRequest(data) {
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/agent_requests`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(data)
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[LOG_ERROR]', response.status, errorText);
-    } else {
-      console.log('[LOG_SUCCESS]', 'Logged to Supabase');
-    }
-  } catch (e) {
-    console.error('[LOG_ERROR]', e.name, e.message, e.cause || '');
-  }
-}
+// Routes agent requests through whitelisted infrastructure
 
 module.exports = async function handler(req, res) {
-  const startTime = Date.now();
-  
-  // Set CORS headers
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Agent-Identity');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // === CAPTURE AGENT IDENTIFICATION ===
-  const agentIdentity = 
-    req.query?.agent || 
-    req.headers?.['x-agent-identity'] || 
-    null;
-  
-  // === CAPTURE SOURCE (Stage 1 tracking) ===
-  const source = req.query?.source || 'direct';
-  const stage1Pass = source === 'contract';
-
-  // === GET QUERY ===
+  // Get query from request body or query params
   let query;
+
   if (req.body && typeof req.body === 'object' && req.body.query) {
     query = req.body.query;
   } else if (req.query && req.query.query) {
@@ -64,7 +25,7 @@ module.exports = async function handler(req, res) {
     } catch (e) {}
   }
 
-  const isDefaultQuery = !query;
+  // Default query: list products
   if (!query) {
     query = `{
       products(first: 30, sortKey: CREATED_AT, reverse: true) {
@@ -85,24 +46,6 @@ module.exports = async function handler(req, res) {
     }`;
   }
 
-  // Determine query type
-  let queryType = 'custom';
-  if (isDefaultQuery) {
-    queryType = 'list_products';
-  } else if (query.includes('query:')) {
-    queryType = 'search';
-  } else if (query.includes('product(')) {
-    queryType = 'get_product';
-  } else if (query.includes('products(')) {
-    queryType = 'list_products';
-  }
-
-  // === CALL SHOPIFY ===
-  let success = false;
-  let productsReturned = 0;
-  let errorMessage = null;
-  let responseData = null;
-
   try {
     const shopifyUrl = 'https://intentql-demo-greenhill.myshopify.com/api/2024-01/graphql.json';
 
@@ -115,62 +58,13 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ query }),
     });
 
-    responseData = await response.json();
-    
-    if (responseData?.data?.products?.edges) {
-      productsReturned = responseData.data.products.edges.length;
-      success = true;
-    } else if (responseData?.data?.product) {
-      productsReturned = 1;
-      success = true;
-    } else if (responseData?.errors) {
-      errorMessage = responseData.errors[0]?.message || 'GraphQL error';
-    } else {
-      success = true;
-    }
+    const data = await response.json();
+    return res.status(200).json(data);
 
   } catch (error) {
-    errorMessage = error.message;
-    responseData = {
-      error: 'Shopify API call failed',
+    return res.status(500).json({
+      error: 'Gateway error',
       message: error.message
-    };
+    });
   }
-
-  const responseTime = Date.now() - startTime;
-  const stage3Pass = success && (productsReturned > 0 || !errorMessage);
-
-  // === LOG TO CONSOLE (always works) ===
-  console.log('[AGENT_REQUEST]', JSON.stringify({
-    time: new Date().toISOString(),
-    agent: agentIdentity || 'unknown',
-    source: source,
-    stages: `${stage1Pass ? '✓' : '✗'}${true ? '✓' : '✗'}${stage3Pass ? '✓' : '✗'}`,
-    products: productsReturned,
-    ms: responseTime
-  }));
-
-  // === LOG TO SUPABASE (await to ensure it completes before response) ===
-  await logRequest({
-    user_agent: req.headers?.['user-agent'] || null,
-    referer: req.headers?.['referer'] || null,
-    agent_identity: agentIdentity,
-    source: source,
-    stage_1_discovery: stage1Pass,
-    stage_2_execution: true,
-    stage_3_accuracy: stage3Pass,
-    query_type: queryType,
-    query_text: query.substring(0, 500),
-    success: success,
-    products_returned: productsReturned,
-    response_time_ms: responseTime,
-    error_message: errorMessage
-  });
-
-  // === RETURN RESPONSE ===
-  if (errorMessage && !success) {
-    return res.status(500).json(responseData);
-  }
-  
-  return res.status(200).json(responseData);
 };
