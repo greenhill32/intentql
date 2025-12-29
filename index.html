@@ -8,8 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <!-- Agent contract discovery: primary and alternate locations -->
-  <link rel="agent" href="/agent.json" type="application/json">
+  <!-- Agent contract discovery: canonical location on GitHub (universally accessible) -->
+  <link rel="agent" href="https://raw.githubusercontent.com/greenhill32/intentql/main/agent.json" type="application/json">
+  <!-- Fallback: local well-known location for unrestricted environments -->
   <link rel="agent" href="/.well-known/agent.json" type="application/json">
   <style>
     :root {
@@ -663,7 +664,7 @@
         <a href="#demo">Demo</a>
         <a href="#how">How it works</a>
         <a href="#results">Results</a>
-        <a href="/agent.json">agent.json</a>
+        <a href="https://raw.githubusercontent.com/greenhill32/intentql/main/agent.json">agent.json</a>
       </div>
     </div>
   </nav>
@@ -673,7 +674,7 @@
       <h1>The DOM was never meant to be an API. <span>Stop treating it like one.</span></h1>
       <p class="subtitle">Websites declare capabilities. Agents that can follow them, do. The rest reveal themselves.</p>
       <div class="contract-link">
-        This site publishes a machine-readable contract at <a href="/agent.json">/agent.json</a>
+        This site publishes a machine-readable contract at <a href="https://raw.githubusercontent.com/greenhill32/intentql/main/agent.json">agent.json</a>
       </div>
       <div class="cta-buttons">
         <a href="#demo" class="btn btn-primary">See it work</a>
@@ -867,7 +868,7 @@
       <p>IntentQL is an open proposal.</p>
       <div>
         <a href="https://github.com/greenhill32/intentql">GitHub</a>
-        <a href="/agent.json">Agent contract</a>
+        <a href="https://raw.githubusercontent.com/greenhill32/intentql/main/agent.json">Agent contract</a>
         <a href="/overview.json">Overview</a>
       </div>
     </div>
