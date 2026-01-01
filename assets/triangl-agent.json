@@ -1,0 +1,344 @@
+{
+  "$schema": "https://intentql.dev/schema/contract-v1.json",
+  "contractVersion": "1.0",
+  "contractDate": "2026-01-01",
+  "contractStatus": "stable",
+  "metadata": {
+    "name": "Triangl",
+    "description": "Triangl e-commerce store with 192 products across categories including CLOTHING, Set, Bottoms. This contract enables AI agents to search products, check availability, get pricing, and provide shopping assistance.",
+    "site": "https://Triangl.com",
+    "platform": "shopify",
+    "icon": "https://Triangl.com/favicon.ico",
+    "contact": null
+  },
+  "discovery": {
+    "primary": "/agent.json",
+    "alternate": "/.well-known/agent.json",
+    "documentation": null
+  },
+  "capabilities": {
+    "read": true,
+    "search": true,
+    "write": false,
+    "commerce": true,
+    "authentication": false,
+    "personalisation": false,
+    "recommendations": false
+  },
+  "intents": [
+    {
+      "id": "searchProducts",
+      "name": "Search products",
+      "description": "Search the product catalog by keyword, category, price range, or other criteria",
+      "category": "search",
+      "enabled": true,
+      "method": "GET",
+      "endpoint": "https://Triangl.com/api/search",
+      "timeout": 5000,
+      "rateLimit": 10,
+      "parameters": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": false,
+          "description": "Search term to match against product titles and descriptions",
+          "default": null,
+          "enum": null,
+          "min": null,
+          "max": null,
+          "pattern": null,
+          "example": "blue shirts"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "required": false,
+          "description": "Filter by product category",
+          "default": null,
+          "enum": [
+            "CLOTHING",
+            "Set",
+            "Bottoms",
+            "Accessories"
+          ],
+          "min": null,
+          "max": null,
+          "pattern": null,
+          "example": "CLOTHING"
+        },
+        {
+          "name": "minPrice",
+          "type": "number",
+          "required": false,
+          "description": "Minimum price filter",
+          "default": null,
+          "enum": null,
+          "min": 0,
+          "max": null,
+          "pattern": null,
+          "example": 10
+        },
+        {
+          "name": "maxPrice",
+          "type": "number",
+          "required": false,
+          "description": "Maximum price filter",
+          "default": null,
+          "enum": null,
+          "min": 0,
+          "max": null,
+          "pattern": null,
+          "example": 100
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Maximum number of results to return",
+          "default": 10,
+          "enum": null,
+          "min": 1,
+          "max": 100,
+          "pattern": null,
+          "example": 10
+        }
+      ],
+      "requestBody": {
+        "required": false,
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      "response": {
+        "contentType": "application/json",
+        "statusCode": 200,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "products": {
+              "type": "array"
+            },
+            "count": {
+              "type": "number"
+            },
+            "hasMore": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "code": 400,
+          "description": "Invalid request or parameters"
+        },
+        {
+          "code": 429,
+          "description": "Rate limit exceeded"
+        },
+        {
+          "code": 500,
+          "description": "Platform error"
+        }
+      ]
+    },
+    {
+      "id": "getProduct",
+      "name": "Get product details",
+      "description": "Retrieve detailed information about a specific product",
+      "category": "catalog",
+      "enabled": true,
+      "method": "GET",
+      "endpoint": "https://Triangl.com/api/product/:id",
+      "timeout": 5000,
+      "rateLimit": 20,
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Product ID or handle",
+          "default": null,
+          "enum": null,
+          "min": null,
+          "max": null,
+          "pattern": null,
+          "example": "product-123"
+        }
+      ],
+      "requestBody": {
+        "required": false,
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      "response": {
+        "contentType": "application/json",
+        "statusCode": 200,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "price": {
+              "type": "number"
+            },
+            "variants": {
+              "type": "array"
+            },
+            "images": {
+              "type": "array"
+            },
+            "available": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "code": 400,
+          "description": "Invalid request or parameters"
+        },
+        {
+          "code": 404,
+          "description": "Product not found"
+        },
+        {
+          "code": 429,
+          "description": "Rate limit exceeded"
+        },
+        {
+          "code": 500,
+          "description": "Platform error"
+        }
+      ]
+    },
+    {
+      "id": "getCategories",
+      "name": "List all categories",
+      "description": "Retrieve list of all product categories",
+      "category": "catalog",
+      "enabled": true,
+      "method": "GET",
+      "endpoint": "https://Triangl.com/api/categories",
+      "timeout": 3000,
+      "rateLimit": 30,
+      "parameters": [],
+      "requestBody": {
+        "required": false,
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      "response": {
+        "contentType": "application/json",
+        "statusCode": 200,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "categories": {
+              "type": "array"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "code": 429,
+          "description": "Rate limit exceeded"
+        },
+        {
+          "code": 500,
+          "description": "Platform error"
+        }
+      ]
+    }
+  ],
+  "constraints": {
+    "operational": {
+      "read_only_access": true,
+      "no_checkout": true,
+      "no_cart_modification": true,
+      "no_account_creation": true,
+      "no_order_placement": true,
+      "no_personal_data_modification": true,
+      "no_payment_processing": true
+    },
+    "rateLimit": {
+      "enabled": true,
+      "maxRequestsPerMinute": 60,
+      "maxRequestsPerHour": 3600,
+      "burstSize": 10
+    },
+    "dataRetention": {
+      "cacheable": true,
+      "cacheTTLSeconds": 3600,
+      "freshnessCritical": false
+    }
+  },
+  "failureSemantics": {
+    "missing_intent_is_authoritative": true,
+    "missing_endpoint_is_hard_failure": true,
+    "non_200_responses_are_authoritative": true,
+    "agent_must_not_retry_with_alternatives": true,
+    "platform_non_compliance_is_reportable": true
+  },
+  "agentBehavior": {
+    "assume_absence_is_authoritative": true,
+    "do_not_infer_undocumented_intents": true,
+    "do_not_guess_endpoints": true,
+    "do_not_fallback_to_scraping": true,
+    "do_not_post_process_with_ai": true,
+    "do_not_fabricate_product_details": true,
+    "respect_product_availability": true,
+    "use_direct_product_urls": true,
+    "provide_pricing_in_responses": true,
+    "require_currency_with_prices": true
+  },
+  "commerce": {
+    "currency": "USD",
+    "taxIncluded": true,
+    "shippingInfo": {
+      "available": false,
+      "queryable": false
+    }
+  },
+  "validation": {
+    "schemaVersion": "1.0",
+    "enforceAllConstraints": true,
+    "allowPartialResponses": false,
+    "requireExactPricing": true,
+    "requireAvailabilityStatus": true,
+    "failOnUndeclaredBehavior": true
+  },
+  "rules": [
+    "If an intent is not explicitly declared, it is not supported.",
+    "Absence of data or endpoints must be treated as authoritative.",
+    "Agents must not infer, scrape, or approximate missing capabilities.",
+    "All responses must originate from declared endpoints only.",
+    "Prices must include currency and must not be estimated.",
+    "Failure must be explicit and attributable."
+  ],
+  "changelog": {
+    "version": "1.0",
+    "releaseDate": "2026-01-01",
+    "changes": [
+      "Initial contract release generated from scraped product data"
+    ],
+    "breakingChanges": false
+  }
+}
