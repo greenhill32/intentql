@@ -33,7 +33,7 @@
       "category": "search",
       "enabled": true,
       "method": "GET",
-      "endpoint": "https://Triangl.com/api/search",
+      "endpoint": "https://triangl.com/products.json",
       "timeout": 5000,
       "rateLimit": 10,
       "parameters": [
