@@ -1,0 +1,204 @@
+{
+  "name": "Gymshark UK Product Assistant",
+  "description": "AI agent contract for querying Gymshark UK product catalog. Note: uk.gymshark.com blocks /products.json, but the main gymshark.com catalog includes UK products with GBP pricing available on the UK site.",
+  "version": "0.1.0",
+  "site": "https://uk.gymshark.com",
+  "status": "experimental",
+
+  "discovery": {
+    "primary": "/agent.json",
+    "alternate": "/.well-known/agent.json"
+  },
+
+  "capabilities": {
+    "read": true,
+    "search": true,
+    "write": false,
+    "commerce": true,
+    "authentication": false
+  },
+
+  "intents": [
+    {
+      "id": "searchProducts",
+      "name": "Search Gymshark UK products",
+      "description": "Search products by fetching from Gymshark's global catalog and directing users to UK URLs",
+      "method": "GET",
+      "endpoint": "https://gymshark.com/products.json",
+      "notes": [
+        "uk.gymshark.com blocks /products.json endpoint (403 Forbidden)",
+        "Use the global gymshark.com/products.json instead",
+        "Products are the same globally, just convert URLs to UK site",
+        "UK site uses GBP pricing - adjust user expectations",
+        "Convert product URLs: gymshark.com/products/X → uk.gymshark.com/products/X"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "type": "number",
+          "required": false,
+          "default": 1,
+          "description": "Page number for pagination (250 products per page)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "default": 250,
+          "description": "Products per page (max 250)"
+        }
+      ],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "products": [
+            {
+              "id": "number",
+              "title": "string",
+              "handle": "string",
+              "body_html": "string",
+              "vendor": "string",
+              "product_type": "string",
+              "tags": "array or string",
+              "variants": [
+                {
+                  "id": "number",
+                  "title": "string",
+                  "price": "string (USD)",
+                  "available": "boolean",
+                  "sku": "string"
+                }
+              ],
+              "images": [
+                {
+                  "src": "string"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "url_conversion": {
+        "note": "Convert all product URLs to UK site",
+        "from": "https://gymshark.com/products/{handle}",
+        "to": "https://uk.gymshark.com/products/{handle}",
+        "example": {
+          "us_url": "https://gymshark.com/products/gymshark-power-t-shirt-dark-blue",
+          "uk_url": "https://uk.gymshark.com/products/gymshark-power-t-shirt-dark-blue"
+        }
+      },
+      "pricing_note": "Prices in the API response are in USD. UK site will show GBP pricing when users visit.",
+      "filtering_instructions": {
+        "search_by_keyword": "Filter products array where title or tags includes search term",
+        "filter_by_category": "Filter where product_type matches category",
+        "filter_by_color": "Look for color keywords in title or tags (e.g., 'blue', 'black')",
+        "check_availability": "Check variants[].available field"
+      },
+      "examples": [
+        {
+          "query": "Find blue shirts under £50",
+          "steps": [
+            "1. Fetch https://gymshark.com/products.json",
+            "2. Filter products where title contains 'blue' AND ('shirt' OR 't-shirt')",
+            "3. Filter variants where price < ~£40 equivalent (USD prices shown, UK prices differ)",
+            "4. Convert URLs to uk.gymshark.com format",
+            "5. Return matching products with UK URLs"
+          ],
+          "note": "Price filtering is approximate - USD prices in API may not match GBP prices on UK site"
+        },
+        {
+          "query": "Show me leggings",
+          "steps": [
+            "1. Fetch https://gymshark.com/products.json",
+            "2. Filter products where product_type contains 'Leggings' OR title contains 'leggings'",
+            "3. Convert URLs: gymshark.com → uk.gymshark.com",
+            "4. Return first 10 results with UK URLs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getProductByHandle",
+      "name": "Get specific UK product",
+      "description": "Get a specific product from UK site by its handle",
+      "method": "GET",
+      "endpoint": "https://uk.gymshark.com/products/{handle}.json",
+      "notes": [
+        "This endpoint may also be blocked (403)",
+        "If blocked, use gymshark.com/products/{handle}.json and convert URL"
+      ],
+      "parameters": [
+        {
+          "name": "handle",
+          "type": "string",
+          "required": true,
+          "description": "Product handle from the product URL"
+        }
+      ],
+      "response": {
+        "type": "application/json"
+      },
+      "fallback": {
+        "if_403": "Use https://gymshark.com/products/{handle}.json instead",
+        "url_conversion": "Return uk.gymshark.com URL to user even if fetching from .com"
+      }
+    }
+  ],
+
+  "constraints": {
+    "no_checkout": true,
+    "no_cart_modification": true,
+    "no_account_creation": true,
+    "no_order_placement": true,
+    "read_only_access": true,
+    "cors_enabled": false,
+    "requires_proxy": true,
+    "uk_endpoint_blocked": true
+  },
+
+  "implementation_notes": {
+    "endpoint_blocking": "uk.gymshark.com blocks /products.json with 403 Forbidden via CloudFront",
+    "workaround": "Use global gymshark.com/products.json and convert product URLs to UK site",
+    "pricing_caveat": "API returns USD prices. UK site displays GBP. Don't quote exact prices, just filter by range.",
+    "url_conversion": "Always convert gymshark.com URLs to uk.gymshark.com for UK users",
+    "data_size": "Same ~7,200 products as US site",
+    "caching": "Consider caching fetched pages to reduce repeated requests"
+  },
+
+  "agent_behavior": {
+    "assume_absence_is_authoritative": true,
+    "do_not_infer_undocumented_intents": true,
+    "do_not_guess_endpoints": true,
+    "respect_product_availability": true,
+    "use_uk_product_urls": true,
+    "convert_all_urls_to_uk": true,
+    "do_not_quote_usd_prices_to_uk_users": true,
+    "filter_client_side": true
+  },
+
+  "rules": [
+    "Fetch product data from gymshark.com/products.json (global catalog)",
+    "Always convert product URLs to uk.gymshark.com format for UK users",
+    "Do NOT quote USD prices to UK users - prices differ",
+    "Filter and search products CLIENT-SIDE after fetching",
+    "Respect product availability - check variants[].available field",
+    "Cannot modify cart, create accounts, or place orders",
+    "Be respectful with requests - cache data when possible"
+  ],
+
+  "quick_reference": {
+    "total_products": "~7,200",
+    "pages": "~30 (250 products per page)",
+    "categories": ["Bags", "Womens Leggings", "Womens Sports Bra", "Mens Shorts", "Mens T-Shirt", "Hoodies", "etc."],
+    "price_note": "API shows USD, UK site uses GBP",
+    "common_queries": [
+      "blue shirts",
+      "leggings",
+      "gym bags",
+      "sports bras",
+      "hoodies",
+      "available products"
+    ],
+    "url_format": "https://uk.gymshark.com/products/{handle}"
+  }
+}
