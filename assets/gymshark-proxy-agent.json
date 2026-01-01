@@ -1,0 +1,182 @@
+{
+  "name": "Gymshark Product Assistant",
+  "description": "AI agent contract for querying Gymshark's product catalog. All queries go directly to Gymshark's public /products.json endpoint.",
+  "version": "0.1.0",
+  "site": "https://gymshark.com",
+  "status": "experimental",
+
+  "discovery": {
+    "primary": "/agent.json",
+    "alternate": "/.well-known/agent.json"
+  },
+
+  "capabilities": {
+    "read": true,
+    "search": true,
+    "write": false,
+    "commerce": true,
+    "authentication": false
+  },
+
+  "intents": [
+    {
+      "id": "searchProducts",
+      "name": "Search Gymshark products",
+      "description": "Search products by fetching from Gymshark's public products.json endpoint and filtering client-side",
+      "method": "GET",
+      "endpoint": "https://gymshark.com/products.json",
+      "notes": [
+        "This endpoint returns ALL products (paginated)",
+        "Use ?page=N to get additional pages (250 products per page)",
+        "Filter results client-side by product title, tags, price, etc.",
+        "Example: Fetch page 1, filter for products with 'blue' and 'shirt' in title"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "type": "number",
+          "required": false,
+          "default": 1,
+          "description": "Page number for pagination (250 products per page)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "default": 250,
+          "description": "Products per page (max 250)"
+        }
+      ],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "products": [
+            {
+              "id": "number",
+              "title": "string",
+              "handle": "string",
+              "body_html": "string",
+              "vendor": "string",
+              "product_type": "string",
+              "tags": "array or string",
+              "variants": [
+                {
+                  "id": "number",
+                  "title": "string",
+                  "price": "string",
+                  "available": "boolean",
+                  "sku": "string"
+                }
+              ],
+              "images": [
+                {
+                  "src": "string"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "filtering_instructions": {
+        "search_by_keyword": "Filter products array where title or tags includes search term",
+        "filter_by_category": "Filter where product_type matches category",
+        "filter_by_price": "Parse variant prices and filter by min/max range",
+        "filter_by_color": "Look for color keywords in title or tags (e.g., 'blue', 'black')",
+        "check_availability": "Check variants[].available field"
+      },
+      "examples": [
+        {
+          "query": "Find blue shirts under $50",
+          "steps": [
+            "1. Fetch https://gymshark.com/products.json",
+            "2. Filter products where title contains 'blue' AND ('shirt' OR 't-shirt')",
+            "3. Filter variants where price < 50",
+            "4. Return matching products with titles, prices, and URLs"
+          ]
+        },
+        {
+          "query": "Show me leggings",
+          "steps": [
+            "1. Fetch https://gymshark.com/products.json",
+            "2. Filter products where product_type contains 'Leggings' OR title contains 'leggings'",
+            "3. Return first 10 results with details"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getProductByHandle",
+      "name": "Get specific product",
+      "description": "Get a specific product by its handle (URL slug)",
+      "method": "GET",
+      "endpoint": "https://gymshark.com/products/{handle}.json",
+      "parameters": [
+        {
+          "name": "handle",
+          "type": "string",
+          "required": true,
+          "description": "Product handle from the product URL"
+        }
+      ],
+      "response": {
+        "type": "application/json"
+      },
+      "example": {
+        "url": "https://gymshark.com/products/gymshark-power-t-shirt-dark-blue.json",
+        "description": "Returns full details for the Power T-Shirt in Dark Blue"
+      }
+    }
+  ],
+
+  "constraints": {
+    "no_checkout": true,
+    "no_cart_modification": true,
+    "no_account_creation": true,
+    "no_order_placement": true,
+    "read_only_access": true,
+    "cors_enabled": false,
+    "requires_proxy": true
+  },
+
+  "implementation_notes": {
+    "cors_workaround": "Gymshark's /products.json may have CORS restrictions. You may need a proxy if calling from browser.",
+    "data_size": "Full catalog is ~7,200 products across ~30 pages",
+    "caching": "Consider caching fetched pages to reduce repeated requests",
+    "rate_limiting": "Be respectful - don't spam requests. Cache when possible."
+  },
+
+  "agent_behavior": {
+    "assume_absence_is_authoritative": true,
+    "do_not_infer_undocumented_intents": true,
+    "do_not_guess_endpoints": true,
+    "respect_product_availability": true,
+    "use_direct_product_urls": true,
+    "provide_pricing_in_responses": true,
+    "filter_client_side": true
+  },
+
+  "rules": [
+    "All product data comes from Gymshark's public /products.json endpoint",
+    "Filter and search products CLIENT-SIDE after fetching",
+    "Always include product URLs in format: https://gymshark.com/products/{handle}",
+    "Respect product availability - check variants[].available field",
+    "Provide prices in responses",
+    "Cannot modify cart, create accounts, or place orders",
+    "Be respectful with requests - cache data when possible"
+  ],
+
+  "quick_reference": {
+    "total_products": "~7,200",
+    "pages": "~30 (250 products per page)",
+    "categories": ["Bags", "Womens Leggings", "Womens Sports Bra", "Mens Shorts", "Mens T-Shirt", "Hoodies", "etc."],
+    "price_range": "$3.60 - $200",
+    "common_queries": [
+      "blue shirts",
+      "leggings under $50",
+      "gym bags",
+      "sports bras",
+      "hoodies",
+      "available products"
+    ]
+  }
+}
