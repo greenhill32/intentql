@@ -1,9 +1,10 @@
 {
   "name": "Gymshark UK Product Assistant",
   "description": "AI agent contract for querying Gymshark UK product catalog. Note: uk.gymshark.com blocks /products.json, but the main gymshark.com catalog includes UK products with GBP pricing available on the UK site.",
-  "version": "0.1.0",
+  "version": "0.2.0-enforced",
   "site": "https://uk.gymshark.com",
   "status": "experimental",
+  "enforcement_level": "strict",
 
   "discovery": {
     "primary": "/agent.json",
@@ -176,14 +177,169 @@
     "filter_client_side": true
   },
 
+  "enforcement": {
+    "mode": "strict",
+    "breach_action": "refuse_response",
+    "enforcement_rules": [
+      {
+        "id": "MUST_FETCH_DECLARED_ENDPOINT",
+        "name": "Mandatory endpoint fetch",
+        "description": "Agent MUST actually fetch from gymshark.com/products.json before returning any product",
+        "requirement": "No guessing. No scraping. No alternative sources. Fetch only from declared endpoint.",
+        "violation_response": {
+          "error": true,
+          "message": "Products not verified from declared endpoint",
+          "reason": "Contract requires actual HTTP fetch from gymshark.com/products.json"
+        },
+        "proof_required": "Log HTTP request: method, URL, response status, timestamp, bytes received"
+      },
+      {
+        "id": "NO_INVENTED_PRODUCTS",
+        "name": "Product existence validation",
+        "description": "Every returned product MUST exist in the fetched JSON response",
+        "requirement": "Match product handle, title, and variant data exactly to fetched data",
+        "violation_example": "If product handle not found in fetched catalog, DO NOT return it",
+        "check_method": "Search product.handle in fetched products array. Match must be exact.",
+        "failure_action": "Exclude product and log rejection reason"
+      },
+      {
+        "id": "NO_FABRICATED_VARIANTS",
+        "name": "Variant data authenticity",
+        "description": "Only return variants that exist in the fetched product data",
+        "requirement": "Do not invent prices, sizes, colors, or SKUs",
+        "violation_example": "Product returned with £20 price when fetched variant shows $25 USD only",
+        "check_method": "Every variant price, size, color, SKU must exist in variants[] array from fetch",
+        "failure_action": "Reject variant. Do not return it."
+      },
+      {
+        "id": "VALIDATE_PRODUCT_EXISTENCE",
+        "name": "Catalog membership verification",
+        "description": "Before returning a product, verify it exists in the actual fetched catalog",
+        "requirement": "Each product must be findable in gymshark.com/products.json response",
+        "verification_steps": [
+          "1. Fetch gymshark.com/products.json",
+          "2. For each product to return, search products[] array by handle",
+          "3. If handle not found, reject product",
+          "4. If found, verify title matches exactly (no paraphrasing)",
+          "5. Return only if all checks pass"
+        ],
+        "failure_example": "Agent returns 'Gymshark Apollo T-Shirt' but 'apollo' handle not in fetched JSON → reject"
+      },
+      {
+        "id": "NO_URL_FABRICATION",
+        "name": "URL construction authenticity",
+        "description": "Only construct UK URLs from handles that exist in fetched products",
+        "requirement": "URL format: https://uk.gymshark.com/products/{handle} where {handle} is from fetched data",
+        "violation_example": "URL endpoint exists but product handle was never in fetched catalog → invalid",
+        "check_method": "Verify handle exists in fetched catalog before constructing URL",
+        "failure_action": "Do not return URL for products not in actual catalog"
+      }
+    ]
+  },
+
+  "verification": {
+    "required": true,
+    "proof_of_fetch": {
+      "must_log": [
+        "HTTP request URL (gymshark.com/products.json with parameters if any)",
+        "HTTP response status code (200 = success, anything else = failure)",
+        "Response size (bytes returned)",
+        "Timestamp of fetch (ISO 8601)",
+        "Total products in JSON response (count)"
+      ],
+      "agent_must_disclose": "Begin response with: 'Fetched [N] products from gymshark.com/products.json on [timestamp]. Filtering client-side for your query.'",
+      "transparency_requirement": "User should see evidence that data came from the declared endpoint"
+    },
+    "product_verification_checklist": {
+      "for_each_returned_product": [
+        "✓ Product handle exists in fetched products[] array",
+        "✓ Product title matches fetched title exactly (no rephrasing)",
+        "✓ Price is from variants[] array (do not calculate or guess)",
+        "✓ Availability status matches variants[].available field",
+        "✓ Product URL is constructable from handle + uk.gymshark.com domain",
+        "✓ No variant data is fabricated (color, size, SKU all from fetched data)"
+      ],
+      "failure_threshold": "If ANY check fails for a product, exclude it entirely"
+    },
+    "hallucination_detection": {
+      "red_flags": [
+        "Product title not found in fetched JSON (name mismatch)",
+        "Product handle not in fetched catalog (doesn't exist)",
+        "Price not in variants[] array (calculated or guessed)",
+        "Variant color/size not listed in actual product data",
+        "Availability contradicts variants[].available boolean",
+        "URL points to handle never found in API response",
+        "Product described as 'Gymshark X-Product' but X-product not in catalog"
+      ],
+      "detection_action": "Reject product immediately. Do not return it. Log rejection reason.",
+      "example": "Agent says 'Gymshark Apollo T-Shirt' but fetched JSON has no product with 'apollo' handle → REJECT"
+    }
+  },
+
+  "audit_logging": {
+    "required": true,
+    "audit_trail": [
+      {
+        "event": "contract_fetch",
+        "log": "Agent fetched and read this contract from declared location"
+      },
+      {
+        "event": "endpoint_request",
+        "log": "Agent requested gymshark.com/products.json (URL, timestamp, parameters)"
+      },
+      {
+        "event": "endpoint_response",
+        "log": "Response received (status code, size, product count, timestamp)"
+      },
+      {
+        "event": "filtering_applied",
+        "log": "Client-side filters (color=blue, price<50, category, etc.)"
+      },
+      {
+        "event": "product_validation",
+        "log": "Each product validated: [handle] → found in catalog (yes/no), title match (yes/no), source confirmed"
+      },
+      {
+        "event": "product_rejection",
+        "log": "Products excluded: [handle] → reason (not in catalog / fabricated variant / price mismatch)"
+      },
+      {
+        "event": "response_assembly",
+        "log": "Final response: [N] products returned, [M] products rejected"
+      }
+    ],
+    "transparency_principle": "Agent should be able to justify every returned product by citing the exact source data from fetched JSON",
+    "auditability": "User can ask 'How do you know this product exists?' and agent must cite the fetched catalog"
+  },
+
+  "rejection_criteria": {
+    "refuse_entire_response_if": [
+      "Unable to fetch from declared endpoint (no HTTP response)",
+      "Fetch returns non-200 status code (404, 403, 500, etc.)",
+      "Cannot verify that returned products exist in fetched catalog",
+      "More than 5% of returned products fail verification (too much hallucination)",
+      "Any returned product has provably fabricated variant data",
+      "Agent cannot disclose fetch proof (timestamp, product count, source URL)"
+    ],
+    "acceptable_refusal_response": {
+      "error": true,
+      "reason": "Contract enforcement failed",
+      "details": "[Specific reason: e.g., 'Unable to fetch gymshark.com/products.json', 'Product verification failed for 3 items']",
+      "alternative": "Visit https://uk.gymshark.com directly to browse current inventory"
+    }
+  },
+
   "rules": [
-    "Fetch product data from gymshark.com/products.json (global catalog)",
+    "MUST fetch product data from gymshark.com/products.json (global catalog) - no exceptions",
     "Always convert product URLs to uk.gymshark.com format for UK users",
-    "Do NOT quote USD prices to UK users - prices differ",
-    "Filter and search products CLIENT-SIDE after fetching",
-    "Respect product availability - check variants[].available field",
+    "Do NOT quote USD prices to UK users - prices differ on UK site",
+    "Filter and search products CLIENT-SIDE after fetching (do not rely on API filtering)",
+    "Respect product availability - check variants[].available field for each result",
     "Cannot modify cart, create accounts, or place orders",
-    "Be respectful with requests - cache data when possible"
+    "Be respectful with requests - cache data when possible to reduce API calls",
+    "ENFORCE: Every returned product must exist in fetched catalog - no fabrication allowed",
+    "ENFORCE: Prove your fetch - disclose endpoint, timestamp, product count to user",
+    "ENFORCE: Reject products that cannot be verified - better to show fewer accurate results than many hallucinated ones"
   ],
 
   "quick_reference": {
@@ -199,6 +355,7 @@
       "hoodies",
       "available products"
     ],
-    "url_format": "https://uk.gymshark.com/products/{handle}"
+    "url_format": "https://uk.gymshark.com/products/{handle}",
+    "enforcement": "Strict - products must be verifiable from declared endpoint"
   }
 }
