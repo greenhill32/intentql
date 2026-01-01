@@ -232,7 +232,7 @@
       "category": "catalog",
       "enabled": true,
       "method": "GET",
-      "endpoint": "https://Triangl.com/api/categories",
+      "endpoint": "https://triangle.com/products.json",
       "timeout": 3000,
       "rateLimit": 30,
       "parameters": [],
