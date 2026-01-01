@@ -1,0 +1,267 @@
+{
+  "name": "Beardbrand",
+  "description": "Beardbrand e-commerce store with 33 products across categories including Bundles, Eau de Parfum, Tools. This contract enables AI agents to search products, check availability, get pricing, and provide shopping assistance.",
+  "version": "0.1.0",
+  "site": "https://beardbrand.com",
+  "status": "experimental",
+  "discovery": {
+    "primary": "/agent.json",
+    "alternate": "/.well-known/agent.json"
+  },
+  "capabilities": {
+    "read": true,
+    "search": true,
+    "write": false,
+    "commerce": true,
+    "authentication": false
+  },
+  "intents": [
+    {
+      "id": "searchProducts",
+      "name": "Search products",
+      "description": "Search the product catalog by keyword, category, price range, or other criteria",
+      "method": "GET",
+      "endpoint": "https://beardbrand.com/api/search",
+      "parameters": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": false,
+          "description": "Search term to match against product titles and descriptions"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "Bundles",
+            "Eau de Parfum",
+            "Tools",
+            "Training",
+            "Gift Cards",
+            "Beard Oil",
+            "Sea Salt Spray",
+            "Deodorant",
+            "Utility Softener",
+            "Utility Wash",
+            "Utility Bar",
+            "Mustache Wax",
+            "Styling Paste",
+            "Collateral",
+            "Utility Balm",
+            "Alliance"
+          ],
+          "description": "Filter by product category"
+        },
+        {
+          "name": "minPrice",
+          "type": "number",
+          "required": false,
+          "description": "Minimum price filter"
+        },
+        {
+          "name": "maxPrice",
+          "type": "number",
+          "required": false,
+          "description": "Maximum price filter"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "default": 10,
+          "description": "Maximum number of results to return"
+        }
+      ],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "products": "array",
+          "count": "number",
+          "hasMore": "boolean"
+        }
+      },
+      "examples": [
+        {
+          "query": "blue shirts",
+          "category": "Mens Tops",
+          "maxPrice": 50
+        }
+      ]
+    },
+    {
+      "id": "getProduct",
+      "name": "Get product details",
+      "description": "Retrieve detailed information about a specific product",
+      "method": "GET",
+      "endpoint": "https://beardbrand.com/api/product/:id",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Product ID or handle"
+        }
+      ],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "id": "string",
+          "title": "string",
+          "description": "string",
+          "price": "number",
+          "variants": "array",
+          "images": "array",
+          "available": "boolean"
+        }
+      }
+    },
+    {
+      "id": "checkAvailability",
+      "name": "Check product availability",
+      "description": "Check if a product is currently in stock",
+      "method": "GET",
+      "endpoint": "https://beardbrand.com/api/availability/:id",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Product ID or handle"
+        }
+      ],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "available": "boolean",
+          "variants": "array"
+        }
+      }
+    },
+    {
+      "id": "getCategories",
+      "name": "List all categories",
+      "description": "Retrieve list of all product categories",
+      "method": "GET",
+      "endpoint": "https://beardbrand.com/api/categories",
+      "parameters": [],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "categories": "array"
+        }
+      }
+    },
+    {
+      "id": "getPriceRange",
+      "name": "Get price range",
+      "description": "Get the minimum and maximum prices across all products",
+      "method": "GET",
+      "endpoint": "https://beardbrand.com/api/price-range",
+      "parameters": [],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "min": "number",
+          "max": "number",
+          "currency": "string"
+        }
+      }
+    },
+    {
+      "id": "compareProducts",
+      "name": "Compare products",
+      "description": "Compare features, prices, and details of multiple products",
+      "method": "GET",
+      "endpoint": "https://beardbrand.com/api/compare",
+      "parameters": [
+        {
+          "name": "ids",
+          "type": "array",
+          "required": true,
+          "description": "Array of product IDs to compare"
+        }
+      ],
+      "response": {
+        "type": "application/json",
+        "schema": {
+          "products": "array",
+          "comparison": "object"
+        }
+      }
+    }
+  ],
+  "constraints": {
+    "no_checkout": true,
+    "no_cart_modification": true,
+    "no_account_creation": true,
+    "no_order_placement": true,
+    "read_only_access": true,
+    "rate_limiting": {
+      "enabled": true,
+      "max_requests_per_minute": 60
+    }
+  },
+  "agent_behavior": {
+    "assume_absence_is_authoritative": true,
+    "do_not_infer_undocumented_intents": true,
+    "do_not_guess_endpoints": true,
+    "fallback_to_html_only_if_no_contract": false,
+    "respect_product_availability": true,
+    "use_direct_product_urls": true,
+    "provide_pricing_in_responses": true
+  },
+  "rules": [
+    "If an intent is not explicitly declared in this file, it is not supported.",
+    "Agents must not attempt to modify cart, create accounts, or place orders.",
+    "This contract provides read-only access to product information.",
+    "All product prices should be displayed with currency.",
+    "Always include direct product URLs in responses.",
+    "Respect stock availability - do not recommend out-of-stock products unless explicitly asked.",
+    "Rate limiting applies - maximum 60 requests per minute.",
+    "Product data is updated periodically - prices and availability may change."
+  ],
+  "commerce": {
+    "platform": "shopify",
+    "total_products": 33,
+    "categories": [
+      "Bundles",
+      "Eau de Parfum",
+      "Tools",
+      "Training",
+      "Gift Cards",
+      "Beard Oil",
+      "Sea Salt Spray",
+      "Deodorant",
+      "Utility Softener",
+      "Utility Wash",
+      "Utility Bar",
+      "Mustache Wax",
+      "Styling Paste",
+      "Collateral",
+      "Utility Balm",
+      "Alliance"
+    ],
+    "price_range": {
+      "min": 10,
+      "max": 499,
+      "currency": "USD"
+    },
+    "supported_queries": [
+      "Find products by keyword",
+      "Filter by category",
+      "Filter by price range",
+      "Check product availability",
+      "Get product details",
+      "Compare products",
+      "List categories"
+    ],
+    "sample_queries": [
+      "Show me blue shirts under $50",
+      "What leggings do you have in stock?",
+      "Compare your premium vs budget hoodies",
+      "What's your cheapest product?",
+      "Do you have any gym bags?"
+    ]
+  }
+}
