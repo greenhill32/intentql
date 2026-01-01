@@ -151,7 +151,7 @@
       "category": "catalog",
       "enabled": true,
       "method": "GET",
-      "endpoint": "https://Triangl.com/api/product/:id",
+      "endpoint": "https://triangl.com/products.json",
       "timeout": 5000,
       "rateLimit": 20,
       "parameters": [
@@ -232,7 +232,7 @@
       "category": "catalog",
       "enabled": true,
       "method": "GET",
-      "endpoint": "https://triangle.com/products.json",
+      "endpoint": "https://triangl.com/products.json",
       "timeout": 3000,
       "rateLimit": 30,
       "parameters": [],
