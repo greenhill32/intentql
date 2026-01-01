@@ -21,7 +21,7 @@
       "name": "Search products",
       "description": "Search the product catalog by keyword, category, price range, or other criteria",
       "method": "GET",
-      "endpoint": "https://beardbrand.com/api/search",
+      "endpoint": "https://beardbrand.com/products.json",
       "parameters": [
         {
           "name": "query",
@@ -94,7 +94,7 @@
       "name": "Get product details",
       "description": "Retrieve detailed information about a specific product",
       "method": "GET",
-      "endpoint": "https://beardbrand.com/api/product/:id",
+      "endpoint": "https://beardbrand.com/products.json",
       "parameters": [
         {
           "name": "id",
@@ -121,7 +121,7 @@
       "name": "Check product availability",
       "description": "Check if a product is currently in stock",
       "method": "GET",
-      "endpoint": "https://beardbrand.com/api/availability/:id",
+      "endpoint": "https://beardbrand.com/products.json",
       "parameters": [
         {
           "name": "id",
@@ -143,7 +143,7 @@
       "name": "List all categories",
       "description": "Retrieve list of all product categories",
       "method": "GET",
-      "endpoint": "https://beardbrand.com/api/categories",
+      "endpoint": "https://beardbrand.com/products.json",
       "parameters": [],
       "response": {
         "type": "application/json",
@@ -173,7 +173,7 @@
       "name": "Compare products",
       "description": "Compare features, prices, and details of multiple products",
       "method": "GET",
-      "endpoint": "https://beardbrand.com/api/compare",
+      "endpoint": "https://beardbrand.com/products.json",
       "parameters": [
         {
           "name": "ids",
