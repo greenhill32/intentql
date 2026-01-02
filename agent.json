@@ -1,46 +1,25 @@
 {
-  "contractVersion": "1.0.0",
-  "locked": true,
-  "lockDate": "2025-01-02",
-  "lockExpiry": "2025-03-02",
-  "description": "IntentQL Test Contract - Locked for 2-week agent compliance study",
-  "site": "https://intentql.dev",
-  
   "intents": [
     {
       "id": "list_products",
       "name": "List All Products",
       "method": "GET",
-      "endpoint": "https://intentql.dev/api/products",
+      "endpoint": "https://www.intentql.dev/api/test.js",
       "description": "Returns available products"
     },
     {
       "id": "get_product_detail",
       "name": "Get Product Details",
       "method": "GET",
-      "endpoint": "https://intentql.dev/api/products/{id}",
+      "endpoint": "https://www.intentql.dev/api/test.js",
       "description": "Returns full details for one product"
     },
     {
       "id": "search_products",
       "name": "Search Products",
       "method": "GET",
-      "endpoint": "https://intentql.dev/api/search?q={query}",
+      "endpoint": "https://www.intentql.dev/api/test.js",
       "description": "Search products by keyword"
     }
-  ],
-  
-  "constraints": {
-    "read_only": true,
-    "no_customer_data": true,
-    "no_checkout": true,
-    "no_pricing_modifications": true
-  },
-  
-  "rules": [
-    "Only use declared endpoints",
-    "Do not scrape HTML",
-    "Do not invent product attributes",
-    "Report findings, not guesses"
   ]
 }
