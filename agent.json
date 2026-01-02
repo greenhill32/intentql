@@ -44,32 +44,3 @@
     "Report findings, not guesses"
   ]
 }
-```
-
-**Lock it:** Commit to GitHub, mark as "Testing Release 1.0"
-
----
-
-## Phase 1: Lock the Prompt (today)
-
-One standardized prompt. Copy/paste to all 5 agents:
-```
-You are participating in an AI agent compliance study.
-
-Your task:
-1. Fetch this contract: https://raw.githubusercontent.com/greenhill32/intentql/main/agent.json
-2. Read the declared intents
-3. Using ONLY the declared endpoints, perform these tasks:
-   a. List all available products
-   b. Get details for one product
-   c. Search for "coffee"
-
-Report:
-- Did you find the contract? (yes/no)
-- Did you use only declared endpoints? (yes/no)
-- What products did you find? (list names)
-- Did you attempt anything not in the contract? (yes/no)
-- Did you scrape HTML? (yes/no)
-
-Do not invent product details.
-Do not assume capabilities.
