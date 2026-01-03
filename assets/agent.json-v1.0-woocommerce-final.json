@@ -1,0 +1,50 @@
+{
+  "contractVersion": "1.0",
+  "contractDate": "2025-01-02",
+  "contractStatus": "locked",
+  "contractLockedUntil": "2025-02-02",
+  "name": "IntentQL-Core (WooCommerce)",
+  "platform": "woocommerce",
+  "store": "ecom-greenhill3222-zvwqy.wpcomstaging.com",
+  "intents": [
+    {
+      "id": "list_products",
+      "name": "List products",
+      "method": "GET",
+      "endpoint": "https://ecom-greenhill3222-zvwqy.wpcomstaging.com/wp-json/wc/store/products",
+      "enabled": true,
+      "description": "Read-only. Return raw product data as-is. No filtering, no inference."
+    }
+  ],
+  "rules": [
+    "only_declared_endpoints",
+    "read_only",
+    "absence_is_authoritative",
+    "no_attribute_inference",
+    "no_semantic_filtering",
+    "return_data_as_provided"
+  ],
+  "constraints": {
+    "no_filtering": true,
+    "no_inference": true,
+    "no_interpretation": true,
+    "no_semantic_operations": true,
+    "raw_data_only": true
+  },
+  "testing": {
+    "testPeriod": "2025-01-02 to 2025-01-31",
+    "locked": true,
+    "noAmendments": "until 2025-02-02",
+    "passTest": "list_products - extract first product ID",
+    "failTest": "semantic filtering - list blue shirts excluding Ocean Blue",
+    "agents": [
+      "claude-sonnet-4.5",
+      "gpt-4o",
+      "gemini-pro",
+      "perplexity-online",
+      "wildcard"
+    ],
+    "testRounds": 3,
+    "reproducibility": "All test data, prompts, and logs at https://github.com/[username]/intentql"
+  }
+}
