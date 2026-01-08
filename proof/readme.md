@@ -1,24 +1,43 @@
-# Proof of Authorship — IntentQL agent.json
+# Implementation Record — `agent.json` in the IntentQL Protocol
 
-This folder contains dated third-party deployment evidence of the `agent.json` contract format as implemented in the IntentQL protocol.
+This folder documents the early deployment and use of a specific `agent.json` format as part of the **IntentQL** protocol — a declarative standard for AI–web interaction.
 
-## Key Dates
+We do not claim to have invented the filename `agent.json`, which may have been used informally elsewhere.  
+This record exists to demonstrate the **first known deployment of a scoped, machine-readable agent contract** focused on **AI safety, capability declaration, and hallucination prevention** — tested in live environments and tied to broader goals of agent accountability.
 
-- **August 1, 2025** – Initial deployment of `agent.json` to Vercel and GitHub
+---
+
+## 📅 Deployment Timeline
+
+- **Initial deployment:** August 1, 2025
 - Deployed by: `greenhill32`
-- Branch: `main`
-- Live preview: https://intentql.dev (via GitHub Pages)
-- Production deployment: https://intentql-m67s0hn4r-lee-manleys-projects.vercel.app
+- GitHub branch: `main`
+- Hosted on:
+  - [intentql.dev](https://intentql.dev) (GitHub Pages)
+  - [intentql-m67s0hn4r-lee-manleys-projects.vercel.app](https://intentql-m67s0hn4r-lee-manleys-projects.vercel.app) (Vercel)
 
-## Files
+---
 
-- `vercel-deploy-aug1-2025.png` — Screenshot of deployment logs
-- `github-deploy-log-aug1-2025.png` — Screenshot of GitHub deployment activity
-- `agent.json` — The machine-readable contract spec for agent interaction
+## 📂 Included Files
 
-## Why this matters
+- `vercel-deploy-aug1-2025.png` — Vercel production deployment log
+- `github-deploy-log-aug1-2025.png` — GitHub branch commit and deployment proof
+- `agent.json` — The machine-readable contract defining declared intents, constraints, and endpoint behavior for agents
 
-This timestamped deployment predates any public announcements of `agent.json` from other platforms.  
-The file was field-tested as part of a live Shopify integration, with proof-of-concept validation across major LLMs (Claude, Gemini, etc.) during Q3 2025.
+---
 
-IntentQL is a declarative standard for safe AI–web interaction. The `agent.json` file is part of its formal contract protocol.
+## 📌 Context and Significance
+
+This version of `agent.json` was:
+
+- Developed as part of **IntentQL**, a protocol for safe and declarative AI–web interaction
+- Deployed and validated in a live Shopify environment during Q3 2025
+- Successfully tested with multiple LLM agents (Claude, Gemini, etc.)
+- Used to demonstrate hallucination control, API boundary enforcement, and UI-independent agent functionality
+
+While others may define different uses for `agent.json`, this version reflects a **real-world, timestamped implementation** focused on **agent regulation and operational safety** in e-commerce and beyond.
+
+---
+
+> For more, see the pinned authorship issue:  
+> https://github.com/greenhill32/intentql/issues/1
